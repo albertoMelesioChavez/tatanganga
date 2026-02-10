@@ -4,7 +4,7 @@ unset($CFG);
 global $CFG;
 $CFG = new stdClass();
 
-$CFG->dbtype    = 'mariadb';
+$CFG->dbtype    = 'mysqli';
 $CFG->dblibrary = 'native';
 $CFG->dbhost    = getenv('MOODLE_DB_HOST') ?: 'localhost';
 $CFG->dbname    = 'moodle';
@@ -24,13 +24,9 @@ $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 02777;
 
-@error_reporting(E_ALL | E_STRICT);
 @ini_set('display_errors', '1');
-$CFG->debug = E_ALL | E_STRICT;
 $CFG->debugdisplay = 1;
-
+@error_reporting(E_ALL);
+$CFG->debug = E_ALL;
 
 require_once(__DIR__ . '/lib/setup.php');
-
-// There is no php closing tag in this file,
-// it is intentional because it prevents trailing whitespace problems!
