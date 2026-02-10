@@ -71,6 +71,15 @@ if ($session && $session['payment_status'] === 'paid') {
             $DB->insert_record('paygw_stripe', $record);
 
             payment_helper::deliver_order($component, $paymentarea, $itemid, $paymentid, (int) $USER->id);
+
+            // Assign subscription role if configured.
+            if (!empty($config->subscriptionroleid)) {
+                $syscontext = \context_system::instance();
+                $roleid = (int) $config->subscriptionroleid;
+                if (!user_has_role_assignment($USER->id, $roleid, $syscontext->id)) {
+                    role_assign($roleid, $USER->id, $syscontext->id);
+                }
+            }
             $success = true;
             $message = get_string('paymentsuccessful', 'paygw_stripe');
         } catch (\Exception $e) {

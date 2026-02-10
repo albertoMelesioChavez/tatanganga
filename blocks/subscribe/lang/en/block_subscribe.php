@@ -15,17 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for paygw_stripe.
+ * Language strings for block_subscribe.
  *
- * @package    paygw_stripe
+ * @package    block_subscribe
  * @copyright  2026 Tatanganga
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'paygw_stripe';
-$plugin->version   = 2026021001;
-$plugin->requires  = 2025040800;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$string['pluginname'] = 'Subscription';
+$string['subscribe'] = 'Subscribe';
+$string['subscribed'] = 'Subscribed';
+$string['subscribe_prompt'] = 'Access all course content by subscribing.';

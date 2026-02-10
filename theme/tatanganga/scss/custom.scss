@@ -68,6 +68,27 @@ body {
     }
 }
 
+// Subscription status
+.tt-subscription-status {
+    .tt-subscription-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #2ecc71;
+        display: inline-block;
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+    }
+}
+
+.tt-subscribe-btn {
+    background: #111 !important;
+    color: #fff !important;
+    border-radius: 999px !important;
+    padding: 0.3rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    border: none !important;
+}
+
 // --------------------------------------------------------------------------
 // Secondary Navigation Tabs — Community, Classroom, Calendar, etc.
 // Matches screenshot: text tabs, active has dark underline

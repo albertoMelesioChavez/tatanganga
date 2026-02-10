@@ -15,17 +15,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for paygw_stripe.
+ * Capabilities for block_subscribe.
  *
- * @package    paygw_stripe
+ * @package    block_subscribe
  * @copyright  2026 Tatanganga
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'paygw_stripe';
-$plugin->version   = 2026021001;
-$plugin->requires  = 2025040800;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$capabilities = [
+    'block/subscribe:myaddinstance' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+        ],
+        'common' => true,
+    ],
+    'block/subscribe:addinstance' => [
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'common' => true,
+    ],
+];
