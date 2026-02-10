@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for block_gcalendar.
+ * Capabilities for block_gcalendar.
  *
  * @package    block_gcalendar
  * @copyright  2026 Tatanganga
@@ -24,8 +24,23 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_gcalendar';
-$plugin->version   = 2026020901;
-$plugin->requires  = 2025040800;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$capabilities = [
+    'block/gcalendar:myaddinstance' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+        ],
+        'common' => true,
+    ],
+    'block/gcalendar:addinstance' => [
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'common' => true,
+    ],
+];
