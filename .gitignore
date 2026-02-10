@@ -1,0 +1,30 @@
+# Moodle data (never version)
+/moodledata/
+
+# Composer / npm
+/vendor/
+/node_modules/
+
+# Docker (local-only)
+/Dockerfile
+/docker-compose.yml
+/docker-entrypoint.sh
+/docker-compose.override.yml
+/.env
+
+# Local config (root only)
+/config.php
+
+
+
+# Logs & cache
+*.log
+/cache/
+/localcache/
+/sessions/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+

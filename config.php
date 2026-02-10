@@ -4,9 +4,9 @@ unset($CFG);
 global $CFG;
 $CFG = new stdClass();
 
-$CFG->dbtype    = 'mysqli';
+$CFG->dbtype    = 'mariadb';
 $CFG->dblibrary = 'native';
-$CFG->dbhost    = 'localhost';
+$CFG->dbhost    = getenv('MOODLE_DB_HOST') ?: 'localhost';
 $CFG->dbname    = 'moodle';
 $CFG->dbuser    = 'moodle';
 $CFG->dbpass    = 'UIMfw*B0rn37^NPpO8Zj';
@@ -18,7 +18,7 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_general_ci',
 );
 
-$CFG->wwwroot   = 'https://tatanganga.cloud';
+$CFG->wwwroot   = getenv('MOODLE_WWWROOT') ?: 'https://tatanganga.cloud';
 $CFG->dataroot  = '/home/user/htdocs/moodledata';
 $CFG->admin     = 'admin';
 

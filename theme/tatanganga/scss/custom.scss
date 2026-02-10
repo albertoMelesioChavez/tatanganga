@@ -1,0 +1,533 @@
+// ==========================================================================
+// Tatanganga Theme - Custom SCSS
+// Clean white navigation, card-based course layout, no blue
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Variables — Light theme matching screenshot
+// --------------------------------------------------------------------------
+$tt-bg: #f5f5f5;
+$tt-card-bg: #ffffff;
+$tt-card-radius: 12px;
+$tt-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+$tt-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.14);
+$tt-text-primary: #1a1a1a;
+$tt-text-secondary: #666666;
+$tt-text-muted: #999999;
+$tt-progress-bg: #e8e8e8;
+$tt-progress-fill: #4caf50;
+$tt-nav-bg: #ffffff;
+$tt-nav-border: #e8e8e8;
+$tt-accent: #333333;
+$tt-search-bg: #f0f0f0;
+
+// --------------------------------------------------------------------------
+// Global / Body
+// --------------------------------------------------------------------------
+body {
+    background-color: $tt-bg !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+// --------------------------------------------------------------------------
+// Top Navigation Bar — White, clean, like screenshot
+// Logo + site name on left, search center, icons + avatar right
+// --------------------------------------------------------------------------
+.navbar {
+    background-color: $tt-nav-bg !important;
+    border-bottom: 1px solid $tt-nav-border !important;
+    box-shadow: none !important;
+    padding: 0.5rem 1rem !important;
+
+    .navbar-brand {
+        font-weight: 600;
+        color: $tt-text-primary !important;
+        font-size: 1.1rem;
+    }
+
+    .nav-link {
+        color: $tt-text-secondary !important;
+        font-weight: 400;
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:hover,
+        &.active {
+            color: $tt-text-primary !important;
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+    }
+
+    // Icons in navbar (chat, bell, etc.)
+    .icon,
+    .fa,
+    i {
+        color: $tt-text-primary !important;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Secondary Navigation Tabs — Community, Classroom, Calendar, etc.
+// Matches screenshot: text tabs, active has dark underline
+// --------------------------------------------------------------------------
+.secondary-navigation {
+    background-color: $tt-nav-bg !important;
+    border-bottom: 1px solid $tt-nav-border !important;
+
+    .moremenu .nav-tabs,
+    .nav-tabs {
+        border-bottom: none !important;
+
+        .nav-item {
+            margin-bottom: -1px;
+        }
+
+        .nav-link {
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            background: transparent !important;
+            color: $tt-text-secondary !important;
+            font-weight: 400;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem !important;
+            border-radius: 0 !important;
+            transition: all 0.15s ease;
+
+            &:hover {
+                color: $tt-text-primary !important;
+                border-bottom-color: #ccc !important;
+            }
+
+            &.active {
+                color: $tt-text-primary !important;
+                border-bottom-color: $tt-accent !important;
+                font-weight: 600;
+                background: transparent !important;
+            }
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Page Content Area
+// --------------------------------------------------------------------------
+#page-content,
+#region-main {
+    background-color: transparent !important;
+}
+
+#page.drawers {
+    background-color: $tt-bg !important;
+}
+
+#page-wrapper {
+    background-color: $tt-bg !important;
+}
+
+// --------------------------------------------------------------------------
+// Course Cards — White cards, subtle shadow, flexible grid
+// --------------------------------------------------------------------------
+.coursebox,
+.card.dashboard-card,
+[data-region="course-content"] .card,
+.course-card {
+    background: $tt-card-bg !important;
+    border: 1px solid $tt-nav-border !important;
+    border-radius: $tt-card-radius !important;
+    box-shadow: $tt-card-shadow !important;
+    overflow: hidden;
+    transition: all 0.25s ease !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+
+    &:hover {
+        box-shadow: $tt-card-shadow-hover !important;
+        transform: translateY(-2px);
+    }
+}
+
+// Course image inside cards
+.coursebox .courseimage,
+.dashboard-card .dashboard-card-img,
+.course-card-img,
+.courseimage {
+    width: 100% !important;
+    height: 180px !important;
+    object-fit: cover !important;
+    border-radius: $tt-card-radius $tt-card-radius 0 0 !important;
+    display: block;
+}
+
+// Course card content area
+.coursebox .content,
+.dashboard-card .dashboard-card-body,
+.course-card-body {
+    padding: 1rem 1.25rem !important;
+}
+
+// Course card title
+.coursebox .coursename a,
+.dashboard-card .course-card-title,
+.course-card-title,
+.coursename a {
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    color: $tt-text-primary !important;
+    text-decoration: none !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: block;
+    margin-bottom: 0.4rem;
+
+    &:hover {
+        color: $tt-text-secondary !important;
+    }
+}
+
+// Course summary/description
+.coursebox .summary,
+.dashboard-card .course-card-text,
+.course-card-text {
+    font-size: 0.85rem !important;
+    color: $tt-text-secondary !important;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+// --------------------------------------------------------------------------
+// Course listing grid — flexible columns
+// --------------------------------------------------------------------------
+.course-listing,
+.courses,
+[data-region="courses-view"],
+.dashboard-card-deck,
+#frontpage-course-list .courses,
+#frontpage-available-course-list .courses {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr)) !important;
+    gap: 1.5rem !important;
+    padding: 1.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    @media (max-width: 576px) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+// Force Moodle card-deck containers to use full width
+.card-deck,
+[data-region="courses-view"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+}
+
+// Ensure main content area uses full width
+#region-main {
+    max-width: 100% !important;
+    padding: 0 !important;
+}
+
+#region-main-box {
+    width: 100% !important;
+}
+
+.container-fluid {
+    max-width: 100% !important;
+}
+
+// --------------------------------------------------------------------------
+// Progress Bar — Green
+// --------------------------------------------------------------------------
+.progress,
+.course-progress .progress {
+    height: 28px !important;
+    border-radius: 14px !important;
+    background-color: $tt-progress-bg !important;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-bar,
+.course-progress .progress-bar {
+    background-color: $tt-progress-fill !important;
+    border-radius: 14px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    transition: width 0.4s ease;
+}
+
+// Progress text
+.course-progress {
+    padding: 0 1.25rem 1rem !important;
+}
+
+// --------------------------------------------------------------------------
+// Dashboard / My Courses page
+// --------------------------------------------------------------------------
+#page-my-index,
+#page-course-index,
+#page-course-index-category {
+    .card-deck,
+    .dashboard-card-deck {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(600px, 1fr)) !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+
+        @media (max-width: 576px) {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Search Bar — Rounded gray pill like screenshot
+// --------------------------------------------------------------------------
+.simplesearchform {
+    .input-group {
+        border-radius: 24px !important;
+        overflow: hidden;
+        border: none !important;
+        background: $tt-search-bg !important;
+
+        input.form-control {
+            border: none !important;
+            background: transparent !important;
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9rem;
+            box-shadow: none !important;
+            color: $tt-text-primary !important;
+
+            &::placeholder {
+                color: $tt-text-muted;
+            }
+        }
+
+        .btn {
+            border: none !important;
+            background: transparent !important;
+            color: $tt-text-muted !important;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Footer
+// --------------------------------------------------------------------------
+#page-footer {
+    background-color: $tt-nav-bg !important;
+    border-top: 1px solid $tt-nav-border;
+    padding: 1.5rem !important;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: $tt-text-secondary;
+}
+
+// --------------------------------------------------------------------------
+// Drawer / Sidebar
+// --------------------------------------------------------------------------
+.drawer {
+    background-color: $tt-nav-bg !important;
+    border-right: 1px solid $tt-nav-border !important;
+}
+
+// --------------------------------------------------------------------------
+// Buttons — Dark/neutral, no blue
+// --------------------------------------------------------------------------
+.btn-primary {
+    background-color: $tt-accent !important;
+    border-color: $tt-accent !important;
+    border-radius: 8px !important;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+    color: #fff !important;
+
+    &:hover {
+        background-color: lighten($tt-accent, 15%) !important;
+        border-color: lighten($tt-accent, 15%) !important;
+    }
+}
+
+.btn-secondary {
+    background-color: $tt-card-bg !important;
+    border: 1px solid $tt-nav-border !important;
+    border-radius: 8px !important;
+    font-weight: 500;
+    color: $tt-text-primary !important;
+
+    &:hover {
+        background-color: darken($tt-card-bg, 3%) !important;
+        border-color: $tt-accent !important;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Remove default Moodle clutter
+// --------------------------------------------------------------------------
+.course-content .section-summary {
+    border: none !important;
+}
+
+#page-header {
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+}
+
+[data-region="course-index"] {
+    .courseindex-section-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Activity / Module cards
+// --------------------------------------------------------------------------
+.activity-item {
+    border-radius: 8px !important;
+    border: 1px solid $tt-nav-border !important;
+    background-color: $tt-card-bg !important;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: darken($tt-card-bg, 2%) !important;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Breadcrumb
+// --------------------------------------------------------------------------
+.breadcrumb {
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 0.85rem;
+
+    .breadcrumb-item {
+        a {
+            color: $tt-text-secondary;
+            text-decoration: none;
+
+            &:hover {
+                color: $tt-text-primary;
+            }
+        }
+
+        &.active {
+            color: $tt-text-primary;
+            font-weight: 500;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Alerts
+// --------------------------------------------------------------------------
+.alert {
+    border-radius: 10px !important;
+}
+
+// --------------------------------------------------------------------------
+// Login page
+// --------------------------------------------------------------------------
+.pagelayout-login {
+    #page {
+        background-color: $tt-bg !important;
+    }
+
+    .login-container {
+        .card {
+            border-radius: $tt-card-radius !important;
+            box-shadow: $tt-card-shadow !important;
+            border: 1px solid $tt-nav-border !important;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Global overrides — Kill all remaining blue
+// --------------------------------------------------------------------------
+a {
+    color: $tt-accent !important;
+    text-decoration: none !important;
+
+    &:hover {
+        color: lighten($tt-accent, 20%) !important;
+    }
+}
+
+// Override any Bootstrap blue focus rings
+.form-control:focus,
+.btn:focus,
+.custom-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(51, 51, 51, 0.15) !important;
+    border-color: $tt-accent !important;
+}
+
+// Dropdown
+.dropdown-menu {
+    background-color: $tt-card-bg !important;
+    border: 1px solid $tt-nav-border !important;
+    box-shadow: $tt-card-shadow !important;
+
+    .dropdown-item {
+        color: $tt-text-primary !important;
+
+        &:hover,
+        &:focus {
+            background-color: $tt-bg !important;
+        }
+    }
+}
+
+// Badge overrides (remove blue badges)
+.badge-primary,
+.bg-primary {
+    background-color: $tt-accent !important;
+}
+
+.badge-info,
+.bg-info {
+    background-color: $tt-text-secondary !important;
+}
+
+// Table headers
+.table th {
+    background-color: $tt-bg !important;
+    border-color: $tt-nav-border !important;
+    color: $tt-text-primary !important;
+}
+
+// Modal
+.modal-content {
+    border: 1px solid $tt-nav-border !important;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: $tt-nav-border !important;
+}
