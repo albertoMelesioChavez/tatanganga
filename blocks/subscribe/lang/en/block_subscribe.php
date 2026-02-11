@@ -26,3 +26,5 @@ $string['pluginname'] = 'Subscription';
 $string['subscribe'] = 'Subscribe';
 $string['subscribed'] = 'Subscribed';
 $string['subscribe_prompt'] = 'Access all course content by subscribing.';
+$string['subscribe:myaddinstance'] = 'Add subscription block to Dashboard';
+$string['subscribe:addinstance'] = 'Add subscription block to a page';
