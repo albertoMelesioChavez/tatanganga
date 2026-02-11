@@ -28,7 +28,7 @@ class block_subscribe extends block_base {
     }
 
     public function get_content() {
-        global $USER;
+        global $USER, $DB, $PAGE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -59,6 +59,12 @@ class block_subscribe extends block_base {
         $courseid = (int) $config['subscriptioncourseid'];
         $instance = $DB->get_record('enrol', ['enrol' => 'fee', 'courseid' => $courseid, 'status' => ENROL_INSTANCE_ENABLED]);
         if (!$instance) {
+            $url = new moodle_url('/enrol/index.php', ['id' => $courseid]);
+            $this->content->text = html_writer::div(
+                html_writer::tag('p', get_string('subscribe_prompt', 'block_subscribe')) .
+                html_writer::link($url, get_string('subscribe', 'block_subscribe'), ['class' => 'btn tt-subscribe-btn']),
+                'tt-subscribe-block'
+            );
             return $this->content;
         }
 
