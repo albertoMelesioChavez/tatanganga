@@ -56,8 +56,17 @@ class block_subscribe extends block_base {
             return $this->content;
         }
 
-        $url = new moodle_url('/enrol/index.php', ['id' => (int) $config['subscriptioncourseid']]);
-        $button = html_writer::link($url, get_string('subscribe', 'block_subscribe'), ['class' => 'btn tt-subscribe-btn']);
+        $courseid = (int) $config['subscriptioncourseid'];
+        $instance = $DB->get_record('enrol', ['enrol' => 'fee', 'courseid' => $courseid, 'status' => ENROL_INSTANCE_ENABLED]);
+        if (!$instance) {
+            return $this->content;
+        }
+
+        $PAGE->requires->js_call_amd('core_payment/gateways_modal', 'init');
+        $description = get_string('subscribe_prompt', 'block_subscribe');
+        $params = core_payment\helper::gateways_modal_link_params('enrol_fee', 'fee', (int) $instance->id, $description);
+        $params['class'] = 'btn tt-subscribe-btn';
+        $button = html_writer::tag('a', get_string('subscribe', 'block_subscribe'), $params);
 
         $this->content->text = html_writer::div(
             html_writer::tag('p', get_string('subscribe_prompt', 'block_subscribe')) . $button,
