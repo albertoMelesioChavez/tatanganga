@@ -60,14 +60,6 @@ class gateway extends \core_payment\gateway {
         $mform->setType('publishablekey', PARAM_TEXT);
         $mform->addHelpButton('publishablekey', 'publishablekey', 'paygw_stripe');
 
-        $mform->addElement('text', 'subscriptionroleid', get_string('subscriptionroleid', 'paygw_stripe'));
-        $mform->setType('subscriptionroleid', PARAM_INT);
-        $mform->addHelpButton('subscriptionroleid', 'subscriptionroleid', 'paygw_stripe');
-
-        $mform->addElement('text', 'subscriptioncourseid', get_string('subscriptioncourseid', 'paygw_stripe'));
-        $mform->setType('subscriptioncourseid', PARAM_INT);
-        $mform->addHelpButton('subscriptioncourseid', 'subscriptioncourseid', 'paygw_stripe');
-
         $options = [
             'live' => get_string('live', 'paygw_stripe'),
             'test' => get_string('test', 'paygw_stripe'),

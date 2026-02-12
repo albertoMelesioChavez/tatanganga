@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'paygw_stripe';
-$plugin->version   = 2026021001;
+$plugin->version   = 2026020900;
 $plugin->requires  = 2025040800;
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '1.0.0';

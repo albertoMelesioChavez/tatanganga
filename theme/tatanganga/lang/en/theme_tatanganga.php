@@ -28,5 +28,3 @@ $string['pluginname'] = 'Tatanganga';
 $string['choosereadme'] = 'Tatanganga es un tema personalizado basado en Boost con un diseño moderno de tarjetas para cursos, barras de progreso y navegación limpia.';
 $string['configtitle'] = 'Tatanganga';
 $string['region-side-pre'] = 'Right';
-$string['subscribed'] = 'Subscribed';
-$string['subscribe'] = 'Subscribe';
