@@ -133,7 +133,7 @@ body {
 .card.dashboard-card,
 [data-region="course-content"] .card,
 .course-card {
-    background: $tt-card-bg !important;
+    background-color: $tt-card-bg !important;
     border: 1px solid $tt-nav-border !important;
     border-radius: $tt-card-radius !important;
     box-shadow: $tt-card-shadow !important;
@@ -144,10 +144,57 @@ body {
     max-width: 100% !important;
     min-width: 0 !important;
     flex: 1 1 100% !important;
+    position: relative;
+    cursor: pointer;
 
     &:hover {
         box-shadow: $tt-card-shadow-hover !important;
         transform: translateY(-2px);
+    }
+
+    .coursebox-link.stretched-link {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+    }
+}
+
+.coursebox.course-card--bg,
+.course-card--bg {
+    background-image: var(--coursebox-bg) !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: transparent !important;
+    min-height: 260px;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.45) 100%);
+        z-index: 0;
+    }
+
+    .course-info-container {
+        position: relative;
+        z-index: 1;
+        color: #fff;
+        padding-top: 15% !important;
+    }
+
+    a,
+    .coursename a,
+    .course-card-title {
+        color: #fff !important;
+    }
+
+    .summary,
+    .course-card-text,
+    .categoryname,
+    .text-muted {
+        color: rgba(255, 255, 255, 0.85) !important;
     }
 }
 

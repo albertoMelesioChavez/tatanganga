@@ -413,6 +413,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @return string
      */
     protected function coursecat_coursebox(coursecat_helper $chelper, $course, $additionalclasses = '') {
+        global $CFG;
         if (!isset($this->strings->summary)) {
             $this->strings->summary = get_string('summary');
         }
@@ -428,19 +429,35 @@ class core_course_renderer extends plugin_renderer_base {
             $classes .= ' collapsed';
         }
 
+        // Get course image URL for background (same cache the coursecard.mustache uses).
+        $bgstyle = '';
+        $imageurl = \cache::make('core', 'course_image')->get($course->id);
+        if (!empty($imageurl)) {
+            $bgstyle = '--coursebox-bg: url(\'' . rawurldecode($imageurl) . '\');';
+            $classes .= ' course-card--bg';
+        }
+
         // .coursebox
         $content .= html_writer::start_tag('div', array(
             'class' => $classes,
             'data-courseid' => $course->id,
             'data-type' => self::COURSECAT_TYPE_COURSE,
+            'style' => $bgstyle,
         ));
 
-        $content .= html_writer::start_tag('div', array('class' => 'info'));
+        // Stretched link: makes the entire card clickable.
+        $content .= html_writer::link(
+            new moodle_url('/course/view.php', ['id' => $course->id]),
+            '',
+            ['class' => 'coursebox-link stretched-link', 'aria-label' => $chelper->get_course_formatted_name($course)]
+        );
+
+        $content .= html_writer::start_tag('div', array('class' => 'info course-info-container'));
         $content .= $this->course_name($chelper, $course);
         $content .= $this->course_enrolment_icons($course);
         $content .= html_writer::end_tag('div');
 
-        $content .= html_writer::start_tag('div', array('class' => 'content'));
+        $content .= html_writer::start_tag('div', array('class' => 'content course-info-container'));
         $content .= $this->coursecat_coursebox_content($chelper, $course);
         $content .= html_writer::end_tag('div');
 
@@ -501,26 +518,24 @@ class core_course_renderer extends plugin_renderer_base {
     protected function course_overview_files(core_course_list_element $course): string {
         global $CFG;
 
-        $contentimages = $contentfiles = '';
+        $contentfiles = '';
         foreach ($course->get_course_overviewfiles() as $file) {
             $isimage = $file->is_valid_image();
+            // Images are now rendered as card background; skip them here.
+            if ($isimage) {
+                continue;
+            }
             $url = moodle_url::make_file_url("$CFG->wwwroot/pluginfile.php",
                 '/' . $file->get_contextid() . '/' . $file->get_component() . '/' .
-                $file->get_filearea() . $file->get_filepath() . $file->get_filename(), !$isimage);
-            if ($isimage) {
-                $contentimages .= html_writer::tag('div',
-                    html_writer::empty_tag('img', ['src' => $url, 'alt' => '']),
-                    ['class' => 'courseimage']);
-            } else {
-                $image = $this->output->pix_icon(file_file_icon($file), $file->get_filename(), 'moodle');
-                $filename = html_writer::tag('span', $image, ['class' => 'fp-icon']).
-                    html_writer::tag('span', $file->get_filename(), ['class' => 'fp-filename']);
-                $contentfiles .= html_writer::tag('span',
-                    html_writer::link($url, $filename),
-                    ['class' => 'coursefile fp-filename-icon text-break']);
-            }
+                $file->get_filearea() . $file->get_filepath() . $file->get_filename(), true);
+            $image = $this->output->pix_icon(file_file_icon($file), $file->get_filename(), 'moodle');
+            $filename = html_writer::tag('span', $image, ['class' => 'fp-icon']).
+                html_writer::tag('span', $file->get_filename(), ['class' => 'fp-filename']);
+            $contentfiles .= html_writer::tag('span',
+                html_writer::link($url, $filename),
+                ['class' => 'coursefile fp-filename-icon text-break']);
         }
-        return $contentimages . $contentfiles;
+        return $contentfiles;
     }
 
     /**
