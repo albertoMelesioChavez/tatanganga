@@ -34,8 +34,10 @@ body {
 // Logo + site name on left, search center, icons + avatar right
 // --------------------------------------------------------------------------
 .navbar {
-    background-color: $tt-nav-bg !important;
-    border-bottom: 1px solid $tt-nav-border !important;
+    background-color: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(232, 232, 232, 0.5) !important;
     box-shadow: none !important;
     padding: 0.5rem 1rem !important;
 
@@ -577,4 +579,63 @@ a {
 .modal-header,
 .modal-footer {
     border-color: $tt-nav-border !important;
+}
+
+// --------------------------------------------------------------------------
+// Site Administration — more horizontal padding
+// --------------------------------------------------------------------------
+@media (min-width: 768px) {
+    #page.drawers .main-inner {
+        padding: 1.5rem 9rem !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    #page.drawers .main-inner {
+        padding: 1.5rem 1rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #page.drawers .main-inner {
+        padding: 1.5rem 0 !important;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Page wrapper background + decorative side borders
+// --------------------------------------------------------------------------
+#page-wrapper {
+    &::before {
+        content: "";
+        position: fixed;
+        top: 50px;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: url([[pix:theme_tatanganga|borders/left-border]]) no-repeat left top;
+        background-size: contain;
+        pointer-events: none;
+        z-index: 9;
+    }
+
+    &::after {
+        content: "";
+        position: fixed;
+        top: 50px;
+        right: 0;
+        width: 280px;
+        height: 100vh;
+        background: url([[pix:theme_tatanganga|borders/right-border]]) no-repeat right top;
+        background-size: contain;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    #page-wrapper::before,
+    #page-wrapper::after {
+        display: none;
+    }
 }
