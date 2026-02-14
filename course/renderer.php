@@ -1356,6 +1356,7 @@ class core_course_renderer extends plugin_renderer_base {
             // Print link to create a new course, for the 1st available category.
             return $this->add_new_course_button();
         }
+        $courses = array_reverse($courses, true);
         return $this->coursecat_courses($chelper, $courses, $totalcount);
     }
 
