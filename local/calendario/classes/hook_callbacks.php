@@ -90,7 +90,7 @@ class hook_callbacks {
             $payurl = new moodle_url('/');
         }
 
-        $html = '<div class="suscripcion-banner">'
+        $html = '<div class="suscripcion-banner" id="suscripcion-banner" style="display:none">'
             . '<div class="suscripcion-banner-content">'
             . '<div class="suscripcion-banner-icon">🔓</div>'
             . '<div class="suscripcion-banner-text">'
@@ -99,7 +99,12 @@ class hook_callbacks {
             . '</div>'
             . '<a href="' . $payurl->out(false) . '" class="btn suscripcion-banner-btn">Suscribirme ahora</a>'
             . '</div>'
-            . '</div>';
+            . '</div>'
+            . '<script>document.addEventListener("DOMContentLoaded",function(){'
+            . 'var b=document.getElementById("suscripcion-banner");'
+            . 'var t=document.getElementById("topofscroll")||document.getElementById("page");'
+            . 'if(b&&t){t.prepend(b);b.style.display="";}'
+            . '});</script>';
 
         $hook->add_html($html);
     }
