@@ -452,6 +452,21 @@ class core_course_renderer extends plugin_renderer_base {
             ['class' => 'coursebox-link stretched-link', 'aria-label' => $chelper->get_course_formatted_name($course)]
         );
 
+        // Floating badge linking to prerequisite course.
+        global $DB;
+        $prereq = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'coursecompleted', 'status' => 0], 'customint1', IGNORE_MISSING);
+        if ($prereq && !empty($prereq->customint1)) {
+            $prereqcourse = $DB->get_record('course', ['id' => $prereq->customint1], 'id, fullname', IGNORE_MISSING);
+            if ($prereqcourse) {
+                $prerequrl = new moodle_url('/course/view.php', ['id' => $prereqcourse->id]);
+                $content .= html_writer::link(
+                    $prerequrl,
+                    '🔒 ' . format_string($prereqcourse->fullname),
+                    ['class' => 'coursebox-prereq-badge', 'title' => get_string('willbeenrolled', 'enrol_coursecompleted', format_string($prereqcourse->fullname))]
+                );
+            }
+        }
+
         $content .= html_writer::start_tag('div', array('class' => 'info course-info-container'));
         $content .= $this->course_name($chelper, $course);
         $content .= $this->course_enrolment_icons($course);
