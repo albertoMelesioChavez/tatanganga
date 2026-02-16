@@ -669,14 +669,64 @@ a {
 
 // ── Subscription banner for non-subscribers ──
 .suscripcion-banner {
-    position: relative;
-    z-index: 100;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    z-index: 1040;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     border-bottom: 2px solid $tt-gold;
     padding: 0.75rem 1rem;
     animation: bannerPulse 3s ease-in-out infinite;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &.collapsed {
+        padding: 0;
+        height: 15px;
+        min-height: 15px;
+        animation: none;
+        cursor: pointer;
+
+        .suscripcion-banner-content {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .suscripcion-banner-toggle {
+            top: -4px;
+            opacity: 0.7;
+            font-size: 0.6rem;
+            width: 24px;
+            height: 14px;
+        }
+    }
+}
+
+.suscripcion-banner-toggle {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    line-height: 1;
+    z-index: 10;
+
+    &:hover {
+        color: $tt-gold;
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+// Add top margin to course content when banner is present
+body.path-course-view #topofscroll {
+    padding-top: 30px;
 }
 
 @keyframes bannerPulse {
@@ -748,5 +798,71 @@ a {
 
     .suscripcion-banner-text {
         align-items: center;
+    }
+}
+
+// ── Course navigation buttons (prev/next) ──
+.course-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 1rem;
+    padding: 1.5rem;
+    border-top: 2px solid $tt-gold;
+}
+
+.course-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+    max-width: 45%;
+    text-align: center;
+}
+
+.course-nav-prev {
+    background: $tt-card-bg !important;
+    color: $tt-text-primary !important;
+    border: 2px solid #ddd !important;
+
+    &:hover {
+        border-color: $tt-gold !important;
+        color: $tt-gold !important;
+        transform: translateX(-3px);
+    }
+}
+
+.course-nav-next {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460) !important;
+    color: #fff !important;
+    border: 2px solid $tt-gold !important;
+    margin-left: auto;
+
+    &:hover {
+        background: $tt-gold !important;
+        color: #1a1a2e !important;
+        transform: translateX(3px);
+    }
+}
+
+@media (max-width: 576px) {
+    .course-nav-buttons {
+        flex-direction: column;
+    }
+
+    .course-nav-btn {
+        max-width: 100%;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .course-nav-next {
+        margin-left: 0;
     }
 }
