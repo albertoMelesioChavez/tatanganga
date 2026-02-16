@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_calendario';
-$plugin->version   = 2026020901;
+$plugin->version   = 2026021601;
 $plugin->requires  = 2025040800; // Moodle 5.0+.
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '1.0.0';
