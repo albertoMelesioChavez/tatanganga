@@ -675,6 +675,8 @@ a {
     border-bottom: 2px solid $tt-gold;
     padding: 0.75rem 1rem;
     animation: bannerPulse 3s ease-in-out infinite;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
 }
 
 @keyframes bannerPulse {
