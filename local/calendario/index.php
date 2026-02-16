@@ -53,7 +53,7 @@ if ($secondarynav = $PAGE->secondarynav) {
 echo $OUTPUT->header();
 
 echo '<div style="display:flex; justify-content:center; padding: 1.5rem 0;">';
-echo '<iframe src="https://calendar.google.com/calendar/embed?src=tatanganga.casareligiosa%40gmail.com&ctz=America%2FMazatlan" style="border: 0; border-radius: 12px;" width="100%" height="700" frameborder="0" scrolling="no"></iframe>';
+echo '<iframe src="https://calendar.google.com/calendar/embed?src=classroom112837773071027844130%40group.calendar.google.com&ctz=America%2FMazatlan" style="border: 0; border-radius: 12px;" width="100%" height="700" frameborder="0" scrolling="no"></iframe>';
 echo '</div>';
 
 echo $OUTPUT->footer();
