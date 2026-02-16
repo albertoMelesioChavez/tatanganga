@@ -665,3 +665,86 @@ a {
         display: none;
     }
 }
+
+// ── Subscription banner for non-subscribers ──
+.suscripcion-banner {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-bottom: 2px solid $tt-gold;
+    padding: 0.75rem 1rem;
+    animation: bannerPulse 3s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+    0%, 100% { box-shadow: 0 2px 15px rgba(196, 162, 101, 0.3); }
+    50% { box-shadow: 0 2px 25px rgba(196, 162, 101, 0.6); }
+}
+
+.suscripcion-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.suscripcion-banner-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.suscripcion-banner-text {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    flex: 1;
+    min-width: 200px;
+
+    strong {
+        font-size: 1rem;
+        color: $tt-gold;
+        letter-spacing: 0.5px;
+    }
+
+    span {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+}
+
+.suscripcion-banner-btn {
+    background: $tt-gold !important;
+    color: #1a1a2e !important;
+    border: none !important;
+    font-weight: 700;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #fff !important;
+        color: #1a1a2e !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        text-decoration: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .suscripcion-banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .suscripcion-banner-text {
+        align-items: center;
+    }
+}
