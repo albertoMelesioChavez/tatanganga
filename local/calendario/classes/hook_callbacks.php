@@ -67,15 +67,8 @@ class hook_callbacks {
             }
         }
 
-        // Find the Stripe enrolment URL (course 5 = Mentalidad has stripe).
-        $stripecourseid = $DB->get_field_sql(
-            "SELECT courseid FROM {enrol} WHERE enrol = 'stripepayment' AND status = 0 LIMIT 1"
-        );
-        if ($stripecourseid) {
-            $payurl = new moodle_url('/enrol/index.php', ['id' => $stripecourseid]);
-        } else {
-            $payurl = new moodle_url('/');
-        }
+        // Custom Stripe subscription page.
+        $payurl = new moodle_url('/local/stripe/index.php');
 
         $html = '<div class="suscripcion-banner" id="suscripcion-banner" style="display:none">'
             . '<div class="suscripcion-banner-content">'
