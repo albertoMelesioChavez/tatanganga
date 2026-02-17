@@ -479,6 +479,13 @@ body {
     }
 }
 
+// Course index toggle button above decorative textures
+[data-region="courseindexdrawercontrols"] .btn,
+.courseindexdrawercontrols .btn {
+    position: relative;
+    z-index: 1060;
+}
+
 // --------------------------------------------------------------------------
 // Activity / Module cards
 // --------------------------------------------------------------------------
@@ -740,7 +747,7 @@ body.path-course-view #topofscroll {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.9rem;
     flex-wrap: wrap;
 }
 
@@ -757,8 +764,7 @@ body.path-course-view #topofscroll {
 }
 
 .path-enrol .fa-stack .fa-arrow-right {
-    color: rgba(0, 0, 0, 0.35);
-    font-size: 0.85em;
+    display: none;
 }
 
 .path-enrol .fa-stack strong {

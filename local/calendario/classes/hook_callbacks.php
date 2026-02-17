@@ -48,8 +48,12 @@ class hook_callbacks {
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
 
-        // Skip for admins.
+        // Skip banner for admins.
         if (is_siteadmin()) {
+            // Still inject course navigation buttons on course pages.
+            if (isset($COURSE->id) && $COURSE->id > 1) {
+                self::inject_course_nav_buttons($hook);
+            }
             return;
         }
 
@@ -62,6 +66,9 @@ class hook_callbacks {
                     'userid' => $USER->id,
                 ]);
                 if ($hassuscriptor) {
+                    if (isset($COURSE->id) && $COURSE->id > 1) {
+                        self::inject_course_nav_buttons($hook);
+                    }
                     return;
                 }
             }
