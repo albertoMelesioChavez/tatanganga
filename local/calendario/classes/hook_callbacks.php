@@ -116,6 +116,14 @@ class hook_callbacks {
     private static function inject_course_nav_buttons(before_standard_top_of_body_html_generation $hook): void {
         global $DB, $COURSE;
 
+        $section = optional_param('section', 0, PARAM_INT);
+        $lastsection = (int) $DB->get_field_sql(
+            'SELECT MAX(section) FROM {course_sections} WHERE course = ? AND visible = 1',
+            [$COURSE->id]
+        );
+        $isfirstsection = ($section === 0);
+        $islastsection = ($lastsection > 0 && $section === $lastsection);
+
         // Course chain order.
         $chain = [];
         $enrols = $DB->get_records('enrol', ['enrol' => 'coursecompleted'], 'courseid');
@@ -154,7 +162,7 @@ class hook_callbacks {
         $prevhtml = '';
         $nexthtml = '';
 
-        if ($pos > 0) {
+        if ($pos > 0 && $islastsection) {
             $previd = $chain[$pos - 1];
             $prevname = $DB->get_field('course', 'fullname', ['id' => $previd]);
             $prevurl = new moodle_url('/course/view.php', ['id' => $previd]);
@@ -162,7 +170,7 @@ class hook_callbacks {
                 . '← ' . format_string($prevname) . '</a>';
         }
 
-        if ($pos < count($chain) - 1) {
+        if ($pos < count($chain) - 1 && $isfirstsection) {
             $nextid = $chain[$pos + 1];
             $nextname = $DB->get_field('course', 'fullname', ['id' => $nextid]);
             $nexturl = new moodle_url('/course/view.php', ['id' => $nextid]);
