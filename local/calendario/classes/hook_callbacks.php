@@ -215,4 +215,46 @@ class hook_callbacks {
 
         $hook->add_html($html);
     }
+
+    /**
+     * Restrict access to activities for non-suscriptors.
+     *
+     * @param core\hook\before_http_headers $hook
+     */
+    public static function restrict_activity_access(core\hook\before_http_headers $hook): void {
+        global $CFG, $DB;
+        
+        // Only check activity pages.
+        $script = substr($hook->get_script(), strlen($CFG->wwwroot));
+        if (!preg_match('#^mod/[^/]+/view\.php$#', $script)) {
+            return;
+        }
+        
+        // Skip if user is suscriptor or guest.
+        if (has_capability('local/stripe:issuscriptor', context_system::instance()) || isguestuser()) {
+            return;
+        }
+        
+        // Get course module ID.
+        $cmid = required_param('id', PARAM_INT);
+        $cm = get_coursemodule_from_id('', $cmid, 0, true);
+        
+        // Skip first course (Empieza aquí) first activity.
+        if ($cm->course == 4) {
+            $firstcm = $DB->get_record_sql(
+                'SELECT cm.id FROM {course_modules} cm 
+                 JOIN {course_sections} cs ON cs.id = cm.section 
+                 WHERE cm.course = 4 
+                 ORDER BY cs.section, cm.id 
+                 LIMIT 1'
+            );
+            if ($firstcm && $cmid == $firstcm->id) {
+                return;
+            }
+        }
+        
+        // Redirect to course with subscription message.
+        $courseurl = new moodle_url('/course/view.php', ['id' => $cm->course]);
+        redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/index.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
+    }
 }

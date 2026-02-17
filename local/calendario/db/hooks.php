@@ -33,4 +33,8 @@ $callbacks = [
         'hook' => core\hook\output\before_standard_top_of_body_html_generation::class,
         'callback' => 'local_calendario\hook_callbacks::inject_subscription_banner',
     ],
+    [
+        'hook' => core\hook\before_http_headers::class,
+        'callback' => 'local_calendario\hook_callbacks::restrict_activity_access',
+    ],
 ];
