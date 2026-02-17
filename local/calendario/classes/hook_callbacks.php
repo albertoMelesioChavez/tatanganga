@@ -169,6 +169,7 @@ class hook_callbacks {
         $prevhtml = '';
         $nexthtml = '';
 
+        // Back button: show on first section if not the first course in chain
         if ($pos > 0 && $isfirstsection) {
             $previd = $chain[$pos - 1];
             $prevname = $DB->get_field('course', 'fullname', ['id' => $previd]);
@@ -177,6 +178,7 @@ class hook_callbacks {
                 . '← ' . format_string($prevname) . '</a>';
         }
 
+        // Next button: show on last section if not the last course in chain
         if ($pos < count($chain) - 1 && $islastsection) {
             $nextid = $chain[$pos + 1];
             $nextname = $DB->get_field('course', 'fullname', ['id' => $nextid]);

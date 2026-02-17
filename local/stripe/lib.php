@@ -30,13 +30,36 @@ function local_stripe_get_suscriptor_role_id(): ?int {
  * @return bool
  */
 function local_stripe_assign_suscriptor_role(int $userid): bool {
+    global $DB;
+    
     $roleid = local_stripe_get_suscriptor_role_id();
     if (!$roleid) {
+        error_log("Stripe: Role student_suscriptor not found");
         return false;
     }
+    
+    $user = $DB->get_record('user', ['id' => $userid, 'deleted' => 0]);
+    if (!$user) {
+        error_log("Stripe: User $userid not found or deleted");
+        return false;
+    }
+    
     $context = local_stripe_system_context();
-    role_assign($roleid, $userid, $context->id);
-    return true;
+    
+    // Check if user already has the role
+    if (user_has_role_assignment($userid, $roleid, $context->id)) {
+        error_log("Stripe: User $userid already has student_suscriptor role");
+        return true;
+    }
+    
+    try {
+        role_assign($roleid, $userid, $context->id);
+        error_log("Stripe: Successfully assigned student_suscriptor role to user $userid");
+        return true;
+    } catch (Exception $e) {
+        error_log("Stripe: Failed to assign role to user $userid: " . $e->getMessage());
+        return false;
+    }
 }
 
 /**
