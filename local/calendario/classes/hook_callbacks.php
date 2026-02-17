@@ -117,11 +117,18 @@ class hook_callbacks {
         global $DB, $COURSE;
 
         $section = optional_param('section', 0, PARAM_INT);
-        $lastsection = (int) $DB->get_field_sql(
-            'SELECT MAX(section) FROM {course_sections} WHERE course = ? AND visible = 1',
+        $firstsection = (int) $DB->get_field_sql(
+            'SELECT MIN(section) FROM {course_sections} WHERE course = ? AND visible = 1 AND section > 0',
             [$COURSE->id]
         );
-        $isfirstsection = ($section === 0);
+        $lastsection = (int) $DB->get_field_sql(
+            'SELECT MAX(section) FROM {course_sections} WHERE course = ? AND visible = 1 AND section > 0',
+            [$COURSE->id]
+        );
+        if ($section === 0 && $firstsection > 0) {
+            $section = $firstsection;
+        }
+        $isfirstsection = ($firstsection > 0 && $section === $firstsection);
         $islastsection = ($lastsection > 0 && $section === $lastsection);
 
         // Course chain order.
@@ -162,7 +169,7 @@ class hook_callbacks {
         $prevhtml = '';
         $nexthtml = '';
 
-        if ($pos > 0 && $islastsection) {
+        if ($pos > 0 && $isfirstsection) {
             $previd = $chain[$pos - 1];
             $prevname = $DB->get_field('course', 'fullname', ['id' => $previd]);
             $prevurl = new moodle_url('/course/view.php', ['id' => $previd]);
@@ -170,7 +177,7 @@ class hook_callbacks {
                 . '← ' . format_string($prevname) . '</a>';
         }
 
-        if ($pos < count($chain) - 1 && $isfirstsection) {
+        if ($pos < count($chain) - 1 && $islastsection) {
             $nextid = $chain[$pos + 1];
             $nextname = $DB->get_field('course', 'fullname', ['id' => $nextid]);
             $nexturl = new moodle_url('/course/view.php', ['id' => $nextid]);

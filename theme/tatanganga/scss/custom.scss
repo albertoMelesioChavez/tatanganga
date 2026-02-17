@@ -424,6 +424,10 @@ body {
     border-right: 1px solid $tt-nav-border !important;
 }
 
+.drawer-toggles .drawer-toggler {
+    z-index: 9;
+}
+
 // --------------------------------------------------------------------------
 // Buttons — Dark/neutral, no blue
 // --------------------------------------------------------------------------
