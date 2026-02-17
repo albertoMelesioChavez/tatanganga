@@ -54,11 +54,48 @@ function local_stripe_assign_suscriptor_role(int $userid): bool {
     
     try {
         role_assign($roleid, $userid, $context->id);
+        // Enrol user in all courses automatically.
+        local_stripe_enrol_in_all_courses($userid);
         error_log("Stripe: Successfully assigned student_suscriptor role to user $userid");
         return true;
     } catch (Exception $e) {
         error_log("Stripe: Failed to assign role to user $userid: " . $e->getMessage());
         return false;
+    }
+}
+
+/**
+ * Enrol a user in all courses using the manual enrolment plugin.
+ *
+ * @param int $userid
+ */
+function local_stripe_enrol_in_all_courses(int $userid): void {
+    global $DB;
+
+    $courses = $DB->get_records('course', null, '', 'id');
+    $enrolplugin = enrol_get_plugin('manual');
+    if (!$enrolplugin) {
+        return;
+    }
+
+    $studentroleid = $DB->get_field('role', 'id', ['shortname' => 'student']);
+
+    foreach ($courses as $course) {
+        if ($course->id == 1) {
+            continue; // Skip site course.
+        }
+
+        // Get or create manual enrol instance for this course.
+        $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
+        if (!$instance) {
+            $instanceid = $enrolplugin->add_instance($course);
+            $instance = $DB->get_record('enrol', ['id' => $instanceid]);
+        }
+
+        // Check if user is already enrolled.
+        if (!is_enrolled(context_course::instance($course->id), $userid)) {
+            $enrolplugin->enrol_user($instance, $userid, $studentroleid);
+        }
     }
 }
 
