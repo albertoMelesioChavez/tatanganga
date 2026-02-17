@@ -735,33 +735,43 @@ body.path-course-view #topofscroll {
 }
 
 // Coursecompleted learn path (course index) styling
-.enrolmentmethod .fa-stack,
-.enrol-coursecompleted .fa-stack,
-.path-enrol .fa-stack {
-    font-size: 1.1rem;
-    line-height: 1;
-    width: 1.75rem;
-    height: 1.75rem;
+.path-enrol .float-end {
+    float: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
 }
 
-.path-enrol .fa-stack + .fa-stack,
-.path-enrol .fa-stack + .fa-stack + .fa-stack {
-    margin-left: 0.2rem;
+.path-enrol .fa-stack {
+    font-size: 0.9rem;
+    line-height: 1;
+    width: auto;
+    height: auto;
 }
 
 .path-enrol .fa-stack .fa-circle,
 .path-enrol .fa-stack .fa-circle-o {
-    color: rgba(0, 0, 0, 0.6);
+    display: none;
 }
 
 .path-enrol .fa-stack .fa-arrow-right {
     color: rgba(0, 0, 0, 0.35);
-    font-size: 0.7em;
+    font-size: 0.85em;
 }
 
 .path-enrol .fa-stack strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    color: #111;
     font-size: 0.8em;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .path-enrol .fa-stack a {
