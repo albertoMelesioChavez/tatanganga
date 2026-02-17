@@ -39149,6 +39149,7 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
   box-shadow: 0 0 0 0.25rem rgba(15, 108, 191, 0.75);
 }
 .drawer-toggles .drawer-left-toggle {
+  z-index: 9;
   left: 0;
 }
 .drawer-toggles .drawer-left-toggle .btn {
