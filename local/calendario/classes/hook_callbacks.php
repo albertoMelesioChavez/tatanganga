@@ -68,7 +68,7 @@ class hook_callbacks {
         }
 
         // Custom Stripe subscription page.
-        $payurl = new moodle_url('/local/stripe/index.php');
+        $payurl = new moodle_url('/local/stripe/index.php', ['start' => 1]);
 
         $html = '<div class="suscripcion-banner" id="suscripcion-banner" style="display:none">'
             . '<div class="suscripcion-banner-content">'
