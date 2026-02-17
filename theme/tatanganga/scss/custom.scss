@@ -908,6 +908,54 @@ body.path-course-view #topofscroll {
     }
 }
 
+// --------------------------------------------------------------------------
+// Locked activities for non-suscriptors
+// --------------------------------------------------------------------------
+.activity-locked {
+    opacity: 0.6;
+    position: relative;
+    
+    &::before {
+        content: '🔒';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        z-index: 10;
+    }
+    
+    .activityname {
+        color: #666 !important;
+    }
+    
+    &:hover {
+        opacity: 0.7;
+    }
+}
+
+.activity-locked .actions {
+    display: none;
+}
+
+.locked-message {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #6c757d;
+    
+    a {
+        color: #007bff;
+        text-decoration: none;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
 @media (max-width: 576px) {
     .course-nav-buttons {
         flex-direction: column;

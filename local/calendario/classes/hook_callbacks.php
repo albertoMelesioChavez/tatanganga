@@ -198,6 +198,19 @@ class hook_callbacks {
             . 'var n=document.getElementById("course-nav-buttons");'
             . 'var c=document.getElementById("region-main")||document.querySelector("[role=main]");'
             . 'if(n&&c){c.appendChild(n);n.style.display="";}'
+            . 'if(' . (has_capability('local/stripe:issuscriptor', context_system::instance()) ? 'false' : 'true') . '){'
+            . 'var activities=document.querySelectorAll(".activity");'
+            . 'var firstActivity=document.querySelector(".activity");'
+            . 'activities.forEach(function(act){'
+            . 'if(act!==firstActivity){'
+            . 'act.classList.add("activity-locked");'
+            . 'var msg=document.createElement("div");'
+            . 'msg.className="locked-message";'
+            'msg.innerHTML="🔒 Esta clase requiere suscripción. <a href=\\"/local/stripe/index.php\\">Suscríbete aquí</a> para desbloquear todo el contenido.";'
+            . 'act.appendChild(msg);'
+            . '}'
+            . '});'
+            . '}'
             . '});</script>';
 
         $hook->add_html($html);
