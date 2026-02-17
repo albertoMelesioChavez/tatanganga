@@ -18,9 +18,11 @@ namespace local_calendario;
 
 use core\hook\navigation\secondary_extend;
 use core\hook\output\before_standard_top_of_body_html_generation;
+use core\hook\before_http_headers;
 use navigation_node;
 use moodle_url;
 use context_course;
+use context_system;
 
 /**
  * Hook callbacks for local_calendario.
