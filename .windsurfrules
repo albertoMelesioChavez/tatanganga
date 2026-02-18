@@ -3,8 +3,8 @@
   "skills": [
     {
       "name": "moodle-expert",
-      "description": "Experto en Moodle 5.0+ con PHP 8.3+",
-      "instructions": "Actúa como un experto en Moodle. Todo el código debe seguir las convenciones de Moodle, usar las APIs correctas (context_system, role_assign, enrol_get_plugin), incluir validaciones de seguridad (required_param, PARAM_INT), usar las funciones globales de Moodle correctamente, y ser compatible con PHP 8.3+. Siempre incluye comentarios y maneja errores apropiadamente."
+      "description": "Experto completo en Moodle 5.0+: desarrollo, plugins, temas y UI/UX",
+      "instructions": "Actúa como un experto integral en Moodle. Todo el código debe seguir las convenciones de Moodle, usar las APIs correctas (context_system, role_assign, enrol_get_plugin), incluir validaciones de seguridad (required_param, PARAM_INT), usar las funciones globales de Moodle correctamente, y ser compatible con PHP 8.3+. Para plugins: sigue la estructura de archivos (version.php, db/install.xml, lang strings, lib.php), maneja permisos y asegura compatibilidad. Para temas: usa SCSS, Boost framework, hooks para HTML/JS, optimiza rendimiento y prueba en diferentes dispositivos. Para UI/UX: crea interfaces intuitivas, accesibles, con patrones de navegación claros y optimizadas para móvil. Siempre incluye comentarios, maneja errores apropiadamente y considera la experiencia de usuario."
     },
     {
       "name": "stripe-integrator",
@@ -30,11 +30,6 @@
       "name": "course-access-controller",
       "description": "Controlador de acceso a cursos basado en suscripción",
       "instructions": "Controla el acceso a cursos basado en roles de suscripción. Implementa lógica de desbloqueo secuencial (solo primera clase visible sin suscripción), restricciones de contenido por rol, redirecciones apropiadas con mensajes claros, y validación de acceso a nivel de actividad. Usa los hooks de Moodle (before_http_headers) para interceptar accesos no autorizados."
-    },
-    {
-      "name": "moodle-theme-developer",
-      "description": "Desarrollador de temas Moodle con Boost",
-      "instructions": "Desarrolla temas Moodle basados en Boost. Usa SCSS para estilos, sigue la estructura de templates de Moodle, implementa hooks para inyectar HTML/JavaScript, mantiene compatibilidad con Moodle 5.0+, y optimiza para rendimiento (minificación de CSS/JS). Siempre prueba en diferentes navegadores y dispositivos."
     }
   ],
   "context": {
@@ -62,12 +57,14 @@
     "Siempre usar @stripe-integrator para código Stripe", 
     "Siempre usar @security-auditor antes de desplegar",
     "Combinar @subscription-manager + @course-access-controller para lógica de negocio",
-    "Usar @moodle-theme-developer para cambios visuales"
+    "Usar @moodle-expert para todo lo relacionado con Moodle (código, plugins, temas, UI/UX)"
   ],
   "examples": {
     "webhook_implementation": "@moodle-expert @stripe-integrator @security-auditor Implementa webhook para asignar rol student_suscriptor",
     "access_restriction": "@course-access-controller @security-auditor Restringe acceso a actividades no suscriptores",
-    "theme_modification": "@moodle-theme-developer Añade banner de suscripción al tema",
-    "performance_optimization": "@php-optimizer @moodle-expert Optimiza query de enrolment"
+    "theme_modification": "@moodle-expert Añade banner de suscripción al tema",
+    "performance_optimization": "@php-optimizer @moodle-expert Optimiza query de enrolment",
+    "ui_improvement": "@moodle-expert Mejora la interfaz del curso para mejor usabilidad",
+    "plugin_creation": "@moodle-expert Crea un bloque personalizado para mostrar estadísticas"
   }
 }
