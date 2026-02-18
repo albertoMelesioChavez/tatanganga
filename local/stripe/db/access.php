@@ -12,4 +12,12 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'local/stripe:issuscriptor' => [
+        'riskbitmask' => 0,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'student_suscriptor' => CAP_ALLOW,
+        ],
+    ],
 ];

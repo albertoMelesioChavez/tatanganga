@@ -25,5 +25,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_stripe';
-$plugin->version = 2026021701;
+$plugin->version = 2026021702;
 $plugin->requires = 2025041400; // Moodle 5.0.4+
