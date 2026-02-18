@@ -37,7 +37,8 @@ $templatecontext = [
     'hasforgotpassword' => !empty($CFG->forgottenpasswordurl),
     'hasregistration' => !empty($CFG->registerauth),
     'forgotpasswordurl' => new moodle_url('/login/forgot_password.php'),
-    'registrationurl' => new moodle_url('/login/signup.php')
+    'registrationurl' => new moodle_url('/login/signup.php'),
+    'maincontent' => $OUTPUT->main_content()
 ];
 
 echo $OUTPUT->render_from_template('theme_tatanganga/login', $templatecontext);
