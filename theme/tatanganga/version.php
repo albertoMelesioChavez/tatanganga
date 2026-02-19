@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026020900;
+$plugin->version   = 2026021900;
 $plugin->requires  = 2025040800;
 $plugin->component = 'theme_tatanganga';
 $plugin->dependencies = [

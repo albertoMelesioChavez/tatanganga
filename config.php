@@ -18,9 +18,11 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_general_ci',
 );
 
-$CFG->wwwroot   = getenv('MOODLE_WWWROOT') ?: 'https://tatanganga.cloud';
+$CFG->wwwroot   = getenv('MOODLE_WWWROOT') ?: 'http://localhost:8080';
 $CFG->dataroot  = '/home/user/htdocs/moodledata';
 $CFG->admin     = 'admin';
+
+$CFG->themerev = time();
 
 $CFG->directorypermissions = 02777;
 
