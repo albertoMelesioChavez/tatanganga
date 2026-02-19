@@ -90,7 +90,7 @@ $THEME->layouts = [
         'defaultregion' => 'side-pre',
     ),
     'login' => array(
-        'file' => 'login.php',
+        'file' => 'drawers.php',
         'regions' => array(),
         'options' => array('langmenu' => true),
     ),
