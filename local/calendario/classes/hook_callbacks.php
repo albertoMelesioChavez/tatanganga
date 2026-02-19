@@ -197,8 +197,8 @@ class hook_callbacks {
         }
 
         $hassuscriptorcap = false;
-        if (capability_exists('local/stripe:issuscriptor')) {
-            $hassuscriptorcap = has_capability('local/stripe:issuscriptor', context_system::instance());
+        if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
+            $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', \context_system::instance());
         }
         $shouldlock = $hassuscriptorcap ? 'false' : 'true';
 
