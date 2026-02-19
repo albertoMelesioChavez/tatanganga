@@ -226,23 +226,6 @@ class hook_callbacks {
             return;
         }
 
-        // Skip for suscriptor users.
-        $context = \context_system::instance();
-        $hassuscriptorcap = false;
-        if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
-            $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', $context);
-        }
-        if (!$hassuscriptorcap) {
-            $suscriptorroleid = $DB->get_field('role', 'id', ['shortname' => 'student_suscriptor']);
-            if ($suscriptorroleid) {
-                if ($DB->record_exists('role_assignments', ['roleid' => $suscriptorroleid, 'userid' => $USER->id])) {
-                    return;
-                }
-            }
-        } else {
-            return;
-        }
-
         $courseid = 0;
         if (isset($PAGE->course) && !empty($PAGE->course->id)) {
             $courseid = (int) $PAGE->course->id;
