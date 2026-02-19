@@ -746,8 +746,8 @@ a {
 
     &.collapsed {
         padding: 0;
-        height: 15px;
-        min-height: 15px;
+        height: 20px;
+        min-height: 20px;
         animation: none;
         cursor: pointer;
 
@@ -757,7 +757,7 @@ a {
         }
 
         .suscripcion-banner-toggle {
-            top: -4px;
+            top: 1px;
             opacity: 0.7;
             font-size: 0.6rem;
             width: 24px;
@@ -768,7 +768,7 @@ a {
 
 .suscripcion-banner-toggle {
     position: absolute;
-    top: 4px;
+    top: 9px;
     right: 8px;
     background: none;
     border: none;
