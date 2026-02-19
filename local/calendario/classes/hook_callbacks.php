@@ -115,7 +115,7 @@ class hook_callbacks {
         $primary = $hook->get_primaryview();
         $url = new moodle_url('/local/calendario/usermap.php');
         $node = navigation_node::create(
-            'Map',
+            get_string('map', 'local_calendario'),
             $url,
             navigation_node::TYPE_CUSTOM,
             null,
