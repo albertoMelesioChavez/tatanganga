@@ -24,3 +24,6 @@
 
 $string['pluginname'] = 'Calendario';
 $string['calendario'] = 'Calendario';
+$string['usermap'] = 'Mapa de usuarios';
+$string['usermapintro'] = 'Ve de forma aproximada en qué parte del mundo está la comunidad. Por privacidad, los puntos están agregados por zona y no muestran ubicaciones exactas.';
+$string['unknownlocation'] = 'Ubicación no disponible';

@@ -39,7 +39,43 @@ class hook_callbacks {
      * @param secondary_extend $hook
      */
     public static function add_calendario_nav(secondary_extend $hook): void {
-        // Disabled - calendar is now a dashboard block.
+        global $DB, $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        $context = \context_system::instance();
+        $hassuscriptorcap = false;
+        if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
+            $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', $context);
+        }
+
+        $hassuscriptorrole = false;
+        if (!$hassuscriptorcap) {
+            $suscriptorroleid = $DB->get_field('role', 'id', ['shortname' => 'student_suscriptor']);
+            if ($suscriptorroleid) {
+                $hassuscriptorrole = $DB->record_exists('role_assignments', [
+                    'roleid' => $suscriptorroleid,
+                    'userid' => $USER->id,
+                ]);
+            }
+        }
+
+        if (!$hassuscriptorcap && !$hassuscriptorrole) {
+            return;
+        }
+
+        $secondary = $hook->get_secondaryview();
+        $url = new moodle_url('/local/calendario/usermap.php');
+        $node = navigation_node::create(
+            get_string('usermap', 'local_calendario'),
+            $url,
+            navigation_node::TYPE_CUSTOM,
+            null,
+            'local_calendario_usermap'
+        );
+        $secondary->add_node($node);
     }
 
     /**

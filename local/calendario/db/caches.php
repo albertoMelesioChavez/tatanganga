@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for local_calendario.
+ * Cache definitions for local_calendario.
  *
  * @package    local_calendario
  * @copyright  2026 Tatanganga
@@ -24,8 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_calendario';
-$plugin->version   = 2026021901;
-$plugin->requires  = 2025040800; // Moodle 5.0+.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$definitions = [
+    'usermap_points' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'ttl' => 3600,
+    ],
+];

@@ -24,3 +24,6 @@
 
 $string['pluginname'] = 'Calendario';
 $string['calendario'] = 'Calendario';
+$string['usermap'] = 'User map';
+$string['usermapintro'] = 'See an approximate view of where the community is around the world. For privacy, points are aggregated by area and do not show exact locations.';
+$string['unknownlocation'] = 'Location unavailable';
