@@ -31,14 +31,35 @@ require(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/clilib.php');
 
-$lang = 'es';
-$localdir = $CFG->dataroot . '/lang/' . $lang . '_local';
-$targetfile = $localdir . '/moodle.php';
+$usage = "Apply local language overrides for the user confirmation email.
 
-if (!is_dir($localdir)) {
-    if (!mkdir($localdir, $CFG->directorypermissions, true) && !is_dir($localdir)) {
-        cli_error('Unable to create directory: ' . $localdir);
-    }
+Options:
+--lang=LANG        Language to write overrides for (default: site default language).
+--also-es          Also write the same overrides for 'es'.
+--help             Print out this help.
+";
+
+list($options, $unrecognized) = cli_get_params(
+    [
+        'lang' => null,
+        'also-es' => false,
+        'help' => false,
+    ],
+    [
+        'h' => 'help',
+    ]
+);
+
+if (!empty($options['help'])) {
+    echo $usage;
+    exit(0);
+}
+
+$langs = [];
+$primarylang = $options['lang'] ?? ($CFG->lang ?? 'en');
+$langs[] = $primarylang;
+if (!empty($options['also-es']) && $primarylang !== 'es') {
+    $langs[] = 'es';
 }
 
 $subject = 'Confirma tu correo para activar tu cuenta en {$a}';
@@ -113,9 +134,20 @@ $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 $content .= "\$string['emailconfirmationsubject'] = " . var_export($subject, true) . ";\n\n";
 $content .= "\$string['emailconfirmation'] = " . var_export($body, true) . ";\n";
 
-if (file_put_contents($targetfile, $content) === false) {
-    cli_error('Unable to write: ' . $targetfile);
+foreach ($langs as $lang) {
+    $localdir = $CFG->dataroot . '/lang/' . $lang . '_local';
+    $targetfile = $localdir . '/moodle.php';
+
+    if (!is_dir($localdir)) {
+        if (!mkdir($localdir, $CFG->directorypermissions, true) && !is_dir($localdir)) {
+            cli_error('Unable to create directory: ' . $localdir);
+        }
+    }
+
+    if (file_put_contents($targetfile, $content) === false) {
+        cli_error('Unable to write: ' . $targetfile);
+    }
+    mtrace('Wrote overrides to: ' . $targetfile);
 }
 
-mtrace('Wrote overrides to: ' . $targetfile);
 mtrace('Now run: php admin/cli/purge_caches.php');
