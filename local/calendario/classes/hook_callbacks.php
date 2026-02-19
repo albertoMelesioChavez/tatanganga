@@ -285,7 +285,7 @@ class hook_callbacks {
             . 'if(window.__lc_course4_lock_applied){return;}window.__lc_course4_lock_applied=true;'
             . 'var lockfrom=' . ((int) $lastunlockedindex) . ';'
             . 'var applyLock=function(){'
-            . 'var container=document.querySelector("#region-main [data-for=\"cmlist\"]")||document.querySelector("[role=main] [data-for=\"cmlist\"]")||document.querySelector("[data-for=\"cmlist\"]");'
+            . 'var container=document.querySelector("#region-main [data-for=\\"cmlist\\"]")||document.querySelector("[role=main] [data-for=\\"cmlist\\"]")||document.querySelector("[data-for=\\"cmlist\\"]");'
             . 'if(!container){return;}'
             . 'var activities=container.querySelectorAll(".activity, .activity-item");'
             . 'activities.forEach(function(act, index){'
@@ -305,6 +305,20 @@ class hook_callbacks {
             . '}'
             . '}'
             . '});'
+            . 'var drawer=document.querySelector("#courseindex")||document.querySelector("[data-region=courseindex]");'
+            . 'if(drawer){'
+            . 'var items=drawer.querySelectorAll(".courseindex-item[data-for=cm]");'
+            . 'items.forEach(function(it, idx){'
+            . 'var link=it.querySelector("a.courseindex-link");'
+            . 'if(idx<=lockfrom){'
+            . 'it.classList.remove("activity-locked");'
+            . 'if(link){link.removeAttribute("aria-disabled");}'
+            . 'return;'
+            . '}'
+            . 'it.classList.add("activity-locked");'
+            . 'if(link){link.setAttribute("aria-disabled","true");}'
+            . '});'
+            . '}'
             . '};'
             . 'applyLock();'
             . 'setTimeout(applyLock,400);'
@@ -492,25 +506,25 @@ class hook_callbacks {
         if (!preg_match('#^mod/[^/]+/view\.php$#', $script)) {
             return;
         }
-        
-        // Skip if user is suscriptor or guest.
-        if (has_capability('local/stripe:issuscriptor', context_system::instance()) || isguestuser()) {
-            return;
-        }
-        
+
         // Get course module ID.
         $cmid = required_param('id', PARAM_INT);
         $cm = get_coursemodule_from_id('', $cmid, 0, true);
-        
-        // First course (Empieza aquí): allow sequential access based on completion.
+
+        // First course (Empieza aquí): allow sequential access based on completion for ALL users (except guest/admin).
         if ($cm->course == 4) {
             global $USER;
-            // Get all course modules ordered by section and id.
+            if (isguestuser() || is_siteadmin()) {
+                return;
+            }
+
             $allcms = $DB->get_records_sql(
-                'SELECT cm.id FROM {course_modules} cm 
-                 JOIN {course_sections} cs ON cs.id = cm.section 
-                 WHERE cm.course = 4 AND cm.visible = 1
-                 ORDER BY cs.section ASC, cm.id ASC'
+                'SELECT cm.id
+                   FROM {course_modules} cm
+                   JOIN {course_sections} cs ON cs.id = cm.section
+                  WHERE cm.course = 4
+                    AND cm.visible = 1
+               ORDER BY cs.section ASC, cm.id ASC'
             );
             $cmids = array_keys($allcms);
 
@@ -519,27 +533,32 @@ class hook_callbacks {
                 return;
             }
 
-            // Find position of requested activity.
             $pos = array_search($cmid, $cmids);
             if ($pos === false) {
                 return;
             }
 
-            // Check if previous activity is completed.
-            $prevcmid = $cmids[$pos - 1];
-            $completed = $DB->get_record('course_modules_completion', [
-                'coursemoduleid' => $prevcmid,
-                'userid'         => $USER->id,
-                'completionstate' => 1,
-            ]);
+            $prevcmid = (int) $cmids[$pos - 1];
+            $completed = $DB->record_exists_sql(
+                'SELECT 1
+                   FROM {course_modules_completion}
+                  WHERE userid = :userid
+                    AND coursemoduleid = :cmid
+                    AND completionstate > 0',
+                ['userid' => $USER->id, 'cmid' => $prevcmid]
+            );
 
             if ($completed) {
                 return;
             }
 
-            // Not completed: redirect back to course.
             $courseurl = new moodle_url('/course/view.php', ['id' => 4]);
             redirect($courseurl, '🔒 Completa la clase anterior para desbloquear esta.');
+        }
+        
+        // Skip if user is suscriptor or guest.
+        if (has_capability('local/stripe:issuscriptor', context_system::instance()) || isguestuser()) {
+            return;
         }
         
         // Other courses: redirect to subscription page.

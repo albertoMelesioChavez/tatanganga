@@ -985,6 +985,14 @@ body.path-course-view #topofscroll {
     }
 }
 
+.activity-locked a {
+    pointer-events: none;
+}
+
+.activity-locked .courseindex-link {
+    pointer-events: none;
+}
+
 .activity-locked .actions {
     display: none;
 }
