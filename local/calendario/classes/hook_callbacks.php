@@ -193,6 +193,92 @@ class hook_callbacks {
         if (isset($COURSE->id) && $COURSE->id > 1) {
             self::inject_course_nav_buttons($hook);
         }
+
+        // First course (Empieza aquí) should always use progressive unlocking on the course view.
+        if (isset($COURSE->id) && (int)$COURSE->id === 4) {
+            self::inject_course4_progressive_lock($hook);
+        }
+    }
+
+    /**
+     * Inject progressive activity locking on the course view for course 4.
+     *
+     * This is intentionally independent from inject_course_nav_buttons() because that method
+     * may return early when there are no prev/next buttons for the current section.
+     *
+     * @param before_standard_top_of_body_html_generation $hook
+     */
+    private static function inject_course4_progressive_lock(before_standard_top_of_body_html_generation $hook): void {
+        global $PAGE, $DB, $COURSE, $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        if (empty($COURSE->id) || (int)$COURSE->id !== 4) {
+            return;
+        }
+
+        $path = $PAGE->url ? $PAGE->url->get_path() : '';
+        if ($path !== '/course/view.php') {
+            return;
+        }
+
+        $cmids = [];
+        $allcms = $DB->get_records_sql(
+            'SELECT cm.id
+               FROM {course_modules} cm
+               JOIN {course_sections} cs ON cs.id = cm.section
+              WHERE cm.course = :courseid
+                AND cm.visible = 1
+           ORDER BY cs.section ASC, cm.id ASC',
+            ['courseid' => 4]
+        );
+        if (!empty($allcms)) {
+            $cmids = array_values(array_keys($allcms));
+        }
+        if (empty($cmids)) {
+            return;
+        }
+
+        $completed = $DB->get_records_sql(
+            'SELECT cmc.coursemoduleid
+               FROM {course_modules_completion} cmc
+              WHERE cmc.userid = :userid
+                AND cmc.completionstate > 0',
+            ['userid' => $USER->id]
+        );
+        $completedset = array_fill_keys(array_map(static function($r) {
+            return (int) $r->coursemoduleid;
+        }, $completed), true);
+
+        $lastunlockedindex = 0;
+        for ($i = 1; $i < count($cmids); $i++) {
+            $prevcmid = (int) $cmids[$i - 1];
+            if (!isset($completedset[$prevcmid])) {
+                break;
+            }
+            $lastunlockedindex = $i;
+        }
+
+        $html = '<script>document.addEventListener("DOMContentLoaded",function(){'
+            . 'if(window.__lc_course4_lock_applied){return;}window.__lc_course4_lock_applied=true;'
+            . 'var activities=document.querySelectorAll(".activity, .activity-item");'
+            . 'var lockfrom=' . ((int) $lastunlockedindex) . ';'
+            . 'activities.forEach(function(act, index){'
+            . 'if(index>lockfrom){'
+            . 'act.classList.add("activity-locked");'
+            . 'if(!act.querySelector(".locked-message")){' 
+            . 'var msg=document.createElement("div");'
+            . 'msg.className="locked-message";'
+            . 'msg.innerHTML="🔒 Completa la clase anterior para desbloquear esta.";'
+            . 'act.appendChild(msg);'
+            . '}'
+            . '}'
+            . '});'
+            . '});</script>';
+
+        $hook->add_html($html);
     }
 
     /**
