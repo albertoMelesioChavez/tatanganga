@@ -246,21 +246,47 @@ class hook_callbacks {
         $cmid = required_param('id', PARAM_INT);
         $cm = get_coursemodule_from_id('', $cmid, 0, true);
         
-        // Skip first course (Empieza aquí) first activity.
+        // First course (Empieza aquí): allow sequential access based on completion.
         if ($cm->course == 4) {
-            $firstcm = $DB->get_record_sql(
+            global $USER;
+            // Get all course modules ordered by section and id.
+            $allcms = $DB->get_records_sql(
                 'SELECT cm.id FROM {course_modules} cm 
                  JOIN {course_sections} cs ON cs.id = cm.section 
-                 WHERE cm.course = 4 
-                 ORDER BY cs.section, cm.id 
-                 LIMIT 1'
+                 WHERE cm.course = 4 AND cm.visible = 1
+                 ORDER BY cs.section ASC, cm.id ASC'
             );
-            if ($firstcm && $cmid == $firstcm->id) {
+            $cmids = array_keys($allcms);
+
+            // Always allow first activity.
+            if (empty($cmids) || $cmid == $cmids[0]) {
                 return;
             }
+
+            // Find position of requested activity.
+            $pos = array_search($cmid, $cmids);
+            if ($pos === false) {
+                return;
+            }
+
+            // Check if previous activity is completed.
+            $prevcmid = $cmids[$pos - 1];
+            $completed = $DB->get_record('course_modules_completion', [
+                'coursemoduleid' => $prevcmid,
+                'userid'         => $USER->id,
+                'completionstate' => 1,
+            ]);
+
+            if ($completed) {
+                return;
+            }
+
+            // Not completed: redirect back to course.
+            $courseurl = new moodle_url('/course/view.php', ['id' => 4]);
+            redirect($courseurl, '🔒 Completa la clase anterior para desbloquear esta.');
         }
         
-        // Redirect to course with subscription message.
+        // Other courses: redirect to subscription page.
         $courseurl = new moodle_url('/course/view.php', ['id' => $cm->course]);
         redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/index.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
     }
