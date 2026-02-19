@@ -202,6 +202,45 @@ class hook_callbacks {
         }
         $shouldlock = $hassuscriptorcap ? 'false' : 'true';
 
+        $courseid = (int) ($COURSE->id ?? 0);
+        $lastunlockedindex = 0;
+        if ($courseid === 4) {
+            $cmids = [];
+            $allcms = $DB->get_records_sql(
+                'SELECT cm.id
+                   FROM {course_modules} cm
+                   JOIN {course_sections} cs ON cs.id = cm.section
+                  WHERE cm.course = :courseid
+                    AND cm.visible = 1
+               ORDER BY cs.section ASC, cm.id ASC',
+                ['courseid' => 4]
+            );
+            if (!empty($allcms)) {
+                $cmids = array_values(array_keys($allcms));
+            }
+
+            if (!empty($cmids) && isloggedin() && !isguestuser()) {
+                $completed = $DB->get_records_sql(
+                    'SELECT cmc.coursemoduleid
+                       FROM {course_modules_completion} cmc
+                      WHERE cmc.userid = :userid
+                        AND cmc.completionstate > 0',
+                    ['userid' => $USER->id]
+                );
+                $completedset = array_fill_keys(array_map(static function($r) {
+                    return (int) $r->coursemoduleid;
+                }, $completed), true);
+
+                for ($i = 1; $i < count($cmids); $i++) {
+                    $prevcmid = (int) $cmids[$i - 1];
+                    if (!isset($completedset[$prevcmid])) {
+                        break;
+                    }
+                    $lastunlockedindex = $i;
+                }
+            }
+        }
+
         $html = '<div class="course-nav-buttons" id="course-nav-buttons" style="display:none">'
             . $prevhtml . $nexthtml
             . '</div>'
@@ -211,10 +250,11 @@ class hook_callbacks {
             . 'if(n&&c){c.appendChild(n);n.style.display="";}'
             . 'if(' . $shouldlock . '){'
             . 'var activities=document.querySelectorAll(".activity");'
-            . 'var courseid=' . ($COURSE->id ?? 4) . ';'
+            . 'var courseid=' . $courseid . ';'
             . 'var isFirstCourse = (courseid === 4);'
             . 'activities.forEach(function(act, index){'
-            . 'if(index > 0){'
+            . 'var lockfrom = isFirstCourse ? ' . ((int) $lastunlockedindex) . ' : 0;'
+            . 'if(index > lockfrom){'
             . 'act.classList.add("activity-locked");'
             . 'var msg=document.createElement("div");'
             . 'msg.className="locked-message";'
