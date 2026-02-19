@@ -196,6 +196,12 @@ class hook_callbacks {
             return;
         }
 
+        $hassuscriptorcap = false;
+        if (capability_exists('local/stripe:issuscriptor')) {
+            $hassuscriptorcap = has_capability('local/stripe:issuscriptor', context_system::instance());
+        }
+        $shouldlock = $hassuscriptorcap ? 'false' : 'true';
+
         $html = '<div class="course-nav-buttons" id="course-nav-buttons" style="display:none">'
             . $prevhtml . $nexthtml
             . '</div>'
@@ -203,7 +209,7 @@ class hook_callbacks {
             . 'var n=document.getElementById("course-nav-buttons");'
             . 'var c=document.getElementById("region-main")||document.querySelector("[role=main]");'
             . 'if(n&&c){c.appendChild(n);n.style.display="";}'
-            . 'if(' . (has_capability('local/stripe:issuscriptor', context_system::instance()) ? 'false' : 'true') . '){'
+            . 'if(' . $shouldlock . '){'
             . 'var activities=document.querySelectorAll(".activity");'
             . 'var courseid=' . ($COURSE->id ?? 4) . ';'
             . 'var isFirstCourse = (courseid === 4);'
