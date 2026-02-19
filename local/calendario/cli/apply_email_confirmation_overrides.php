@@ -17,8 +17,8 @@
 /**
  * Apply local language overrides for the user confirmation email.
  *
- * This writes to $CFG->dataroot/lang/es_local/moodle.php so it is deployed by running this CLI
- * on the target server (moodledata is not in git).
+ * This writes to $CFG->dataroot/lang/en_local/moodle.php and $CFG->dataroot/lang/es_local/moodle.php
+ * so it is deployed by running this CLI on the target server (moodledata is not in git).
  *
  * @package    local_calendario
  * @copyright  2026 Tatanganga
@@ -31,36 +31,7 @@ require(__DIR__ . '/../../../config.php');
 
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = "Apply local language overrides for the user confirmation email.
-
-Options:
---lang=LANG        Language to write overrides for (default: site default language).
---also-es          Also write the same overrides for 'es'.
---help             Print out this help.
-";
-
-list($options, $unrecognized) = cli_get_params(
-    [
-        'lang' => null,
-        'also-es' => false,
-        'help' => false,
-    ],
-    [
-        'h' => 'help',
-    ]
-);
-
-if (!empty($options['help'])) {
-    echo $usage;
-    exit(0);
-}
-
-$langs = [];
-$primarylang = $options['lang'] ?? ($CFG->lang ?? 'en');
-$langs[] = $primarylang;
-if (!empty($options['also-es']) && $primarylang !== 'es') {
-    $langs[] = 'es';
-}
+$langs = ['en', 'es'];
 
 $subject = 'Confirma tu correo para activar tu cuenta en {$a}';
 
