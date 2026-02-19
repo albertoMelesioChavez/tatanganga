@@ -17,6 +17,7 @@
 namespace local_calendario;
 
 use core\hook\navigation\secondary_extend;
+use core\hook\navigation\primary_extend;
 use core\hook\output\before_standard_top_of_body_html_generation;
 use core\hook\before_http_headers;
 use navigation_node;
@@ -76,6 +77,51 @@ class hook_callbacks {
             'local_calendario_usermap'
         );
         $secondary->add_node($node);
+    }
+
+    /**
+     * Add "Map" to the primary navigation (header) for suscriptor users.
+     *
+     * @param primary_extend $hook
+     */
+    public static function add_primary_nav(primary_extend $hook): void {
+        global $DB, $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        $context = \context_system::instance();
+        $hassuscriptorcap = false;
+        if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
+            $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', $context);
+        }
+
+        $hassuscriptorrole = false;
+        if (!$hassuscriptorcap) {
+            $suscriptorroleid = $DB->get_field('role', 'id', ['shortname' => 'student_suscriptor']);
+            if ($suscriptorroleid) {
+                $hassuscriptorrole = $DB->record_exists('role_assignments', [
+                    'roleid' => $suscriptorroleid,
+                    'userid' => $USER->id,
+                ]);
+            }
+        }
+
+        if (!$hassuscriptorcap && !$hassuscriptorrole) {
+            return;
+        }
+
+        $primary = $hook->get_primaryview();
+        $url = new moodle_url('/local/calendario/usermap.php');
+        $node = navigation_node::create(
+            'Map',
+            $url,
+            navigation_node::TYPE_CUSTOM,
+            null,
+            'local_calendario_usermap_primary'
+        );
+        $primary->add_node($node);
     }
 
     /**

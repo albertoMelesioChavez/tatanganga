@@ -30,6 +30,10 @@ $callbacks = [
         'callback' => 'local_calendario\hook_callbacks::add_calendario_nav',
     ],
     [
+        'hook' => core\hook\navigation\primary_extend::class,
+        'callback' => 'local_calendario\hook_callbacks::add_primary_nav',
+    ],
+    [
         'hook' => core\hook\output\before_standard_top_of_body_html_generation::class,
         'callback' => 'local_calendario\hook_callbacks::inject_subscription_banner',
     ],
