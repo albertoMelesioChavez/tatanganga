@@ -134,7 +134,15 @@ class hook_callbacks {
 
         // First course (Empieza aquí): progressive unlocking for non-suscriptors should always apply on course view.
         // This must run before any early returns below.
-        if (isset($COURSE->id) && (int)$COURSE->id === 4) {
+        $pagecourseid = 0;
+        if (isset($PAGE->course) && !empty($PAGE->course->id)) {
+            $pagecourseid = (int) $PAGE->course->id;
+        } else if (isset($COURSE->id)) {
+            $pagecourseid = (int) $COURSE->id;
+        } else {
+            $pagecourseid = (int) optional_param('id', 0, PARAM_INT);
+        }
+        if ($pagecourseid === 4) {
             self::inject_course4_progressive_lock($hook);
         }
 
@@ -235,7 +243,16 @@ class hook_callbacks {
             return;
         }
 
-        if (empty($COURSE->id) || (int)$COURSE->id !== 4) {
+        $courseid = 0;
+        if (isset($PAGE->course) && !empty($PAGE->course->id)) {
+            $courseid = (int) $PAGE->course->id;
+        } else if (!empty($COURSE->id)) {
+            $courseid = (int) $COURSE->id;
+        } else {
+            $courseid = (int) optional_param('id', 0, PARAM_INT);
+        }
+
+        if ($courseid !== 4) {
             return;
         }
 
