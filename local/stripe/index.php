@@ -20,7 +20,7 @@ $successurl = get_config('local_stripe', 'successurl');
 $cancelurl = get_config('local_stripe', 'cancelurl');
 
 if (empty($successurl)) {
-    $successurl = (new moodle_url('/local/stripe/index.php', ['ok' => 1]))->out(false);
+    $successurl = (new moodle_url('/local/stripe/index.php', ['ok' => 1, 'redirectcourse' => 4]))->out(false);
 }
 if (empty($cancelurl)) {
     $cancelurl = (new moodle_url('/local/stripe/index.php', ['cancel' => 1]))->out(false);
@@ -28,6 +28,11 @@ if (empty($cancelurl)) {
 
 $messages = [];
 if (optional_param('ok', 0, PARAM_BOOL)) {
+    $redirectcourse = optional_param('redirectcourse', 0, PARAM_INT);
+    if ($redirectcourse > 0) {
+        $courseurl = new moodle_url('/course/view.php', ['id' => $redirectcourse]);
+        redirect($courseurl, 'Pago recibido. Tu suscripción se activará en unos momentos.', null, \core\output\notification::NOTIFY_SUCCESS);
+    }
     $messages[] = html_writer::div('Pago recibido. Tu suscripción se activará en unos momentos.', 'alert alert-success');
 }
 if (optional_param('cancel', 0, PARAM_BOOL)) {
