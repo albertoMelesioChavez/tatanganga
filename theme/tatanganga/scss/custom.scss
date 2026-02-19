@@ -542,40 +542,47 @@ body {
 // Login page
 // --------------------------------------------------------------------------
 .pagelayout-login {
-    // Remove purple/blue Boost background
     #page-wrapper,
-    #page,
-    body {
+    #page {
         background: #f3f4f6 !important;
     }
 
-    // Hide drawer sidebar on login
-    #nav-drawer,
-    .drawer,
-    [data-region="drawer"],
     #theme_boost-drawers-courseindex,
-    #theme_boost-drawers-blocks {
+    #theme_boost-drawers-blocks,
+    .drawer-toggles {
         display: none !important;
     }
 
-    // Remove drawer margin/padding from main content
-    #page.drawers,
-    #page {
+    #page.drawers {
         padding-left: 0 !important;
+        padding-right: 0 !important;
         margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 
-    // Center the login form
+    #topofscroll.main-inner {
+        padding-top: 1.5rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    #page-content {
+        display: flex;
+        justify-content: center;
+    }
+
     #region-main-box {
+        width: 100% !important;
         max-width: 460px !important;
-        margin: 2rem auto !important;
         float: none !important;
     }
 
-    // Remove extra column space
     #region-main {
         float: none !important;
         width: 100% !important;
+    }
+
+    #page-header {
+        display: none !important;
     }
 
     .card {
