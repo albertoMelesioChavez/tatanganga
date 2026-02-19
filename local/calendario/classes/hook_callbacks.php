@@ -50,8 +50,8 @@ class hook_callbacks {
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
 
-        // Skip banner on login page.
-        if ($PAGE->pagelayout === 'login') {
+        // Skip banner on login page or for non-logged-in users.
+        if ($PAGE->pagelayout === 'login' || !isloggedin() || isguestuser()) {
             return;
         }
 
