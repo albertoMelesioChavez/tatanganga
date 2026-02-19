@@ -132,6 +132,12 @@ class hook_callbacks {
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
 
+        // First course (Empieza aquí): progressive unlocking for non-suscriptors should always apply on course view.
+        // This must run before any early returns below.
+        if (isset($COURSE->id) && (int)$COURSE->id === 4) {
+            self::inject_course4_progressive_lock($hook);
+        }
+
         // Skip banner for admins.
         if (is_siteadmin()) {
             // Still inject course navigation buttons on course pages.
@@ -194,10 +200,7 @@ class hook_callbacks {
             self::inject_course_nav_buttons($hook);
         }
 
-        // First course (Empieza aquí) should always use progressive unlocking on the course view.
-        if (isset($COURSE->id) && (int)$COURSE->id === 4) {
-            self::inject_course4_progressive_lock($hook);
-        }
+        // First course progressive unlocking is injected earlier to avoid early returns.
     }
 
     /**
@@ -212,6 +215,23 @@ class hook_callbacks {
         global $PAGE, $DB, $COURSE, $USER;
 
         if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        // Skip for suscriptor users.
+        $context = \context_system::instance();
+        $hassuscriptorcap = false;
+        if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
+            $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', $context);
+        }
+        if (!$hassuscriptorcap) {
+            $suscriptorroleid = $DB->get_field('role', 'id', ['shortname' => 'student_suscriptor']);
+            if ($suscriptorroleid) {
+                if ($DB->record_exists('role_assignments', ['roleid' => $suscriptorroleid, 'userid' => $USER->id])) {
+                    return;
+                }
+            }
+        } else {
             return;
         }
 
@@ -263,8 +283,9 @@ class hook_callbacks {
 
         $html = '<script>document.addEventListener("DOMContentLoaded",function(){'
             . 'if(window.__lc_course4_lock_applied){return;}window.__lc_course4_lock_applied=true;'
-            . 'var activities=document.querySelectorAll(".activity, .activity-item");'
             . 'var lockfrom=' . ((int) $lastunlockedindex) . ';'
+            . 'var applyLock=function(){'
+            . 'var activities=document.querySelectorAll(".activity, .activity-item");'
             . 'activities.forEach(function(act, index){'
             . 'if(index>lockfrom){'
             . 'act.classList.add("activity-locked");'
@@ -276,6 +297,16 @@ class hook_callbacks {
             . '}'
             . '}'
             . '});'
+            . '};'
+            . 'applyLock();'
+            . 'setTimeout(applyLock,400);'
+            . 'try{'
+            . 'var target=document.querySelector("[data-region=course-content]")||document.getElementById("page");'
+            . 'if(target&&window.MutationObserver){'
+            . 'var obs=new MutationObserver(function(){applyLock();});'
+            . 'obs.observe(target,{subtree:true,childList:true});'
+            . '}'
+            . '}catch(e){}'
             . '});</script>';
 
         $hook->add_html($html);
