@@ -50,6 +50,11 @@ class hook_callbacks {
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
 
+        // Skip banner on login page.
+        if ($PAGE->pagelayout === 'login') {
+            return;
+        }
+
         // Skip banner for admins.
         if (is_siteadmin()) {
             // Still inject course navigation buttons on course pages.
