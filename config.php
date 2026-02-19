@@ -33,4 +33,8 @@ $CFG->debugdisplay = 1;
 @error_reporting(E_ALL);
 $CFG->debug = E_ALL;
 
+if (file_exists(__DIR__ . '/config-local.php')) {
+    require_once(__DIR__ . '/config-local.php');
+}
+
 require_once(__DIR__ . '/lib/setup.php');

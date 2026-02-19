@@ -1,0 +1,17 @@
+<?php
+// Local-only Moodle overrides.
+// Copy this file to config-local.php (NOT committed) and adjust as needed.
+
+defined('MOODLE_INTERNAL') || define('MOODLE_INTERNAL', true);
+
+// Force theme cache busting in local dev.
+if (!isset($CFG->themerev)) {
+    $CFG->themerev = time();
+}
+
+// Optional: stronger debugging in local.
+// $CFG->debug = E_ALL | E_STRICT;
+// $CFG->debugdisplay = 1;
+
+// Optional: if you ever run without MOODLE_WWWROOT env.
+// $CFG->wwwroot = 'http://localhost:8080';

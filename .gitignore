@@ -27,5 +27,9 @@
 .DS_Store
 .idea/
 .vscode/
+.DS_Store
+
+# Local-only Moodle overrides
+config-local.php
 
 .windsurfrules
