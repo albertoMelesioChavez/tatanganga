@@ -250,7 +250,9 @@ class hook_callbacks {
         }
 
         $path = $PAGE->url ? $PAGE->url->get_path() : '';
-        if ($path !== '/course/view.php') {
+        $iscourseview = ($path === '/course/view.php');
+        $isactivityview = (!empty($path) && preg_match('#^/mod/[^/]+/view\.php$#', $path));
+        if (!$iscourseview && !$isactivityview) {
             return;
         }
 
@@ -291,16 +293,24 @@ class hook_callbacks {
             $lastunlockedindex = $i;
         }
 
+        $lockedcmids = [];
+        for ($i = 0; $i < count($cmids); $i++) {
+            if ($i > $lastunlockedindex) {
+                $lockedcmids[(int) $cmids[$i]] = true;
+            }
+        }
+        $lockedcmidsjson = json_encode($lockedcmids);
+
         $html = '<script>document.addEventListener("DOMContentLoaded",function(){'
             . 'if(window.__lc_course4_lock_applied){return;}window.__lc_course4_lock_applied=true;'
             . 'var lockfrom=' . ((int) $lastunlockedindex) . ';'
+            . 'var lockedcmids=' . ($lockedcmidsjson ?: '{}') . ';'
             . 'var applying=false;'
             . 'var applyLock=function(){'
             . 'if(applying){return;}applying=true;'
             . 'var container=document.querySelector("#region-main [data-for=\\"cmlist\\"]")||document.querySelector("[role=main] [data-for=\\"cmlist\\"]")||document.querySelector("[data-for=\\"cmlist\\"]");'
-            . 'if(!container){applying=false;return;}'
+            . 'if(container){'
             . 'var activities=container.querySelectorAll(".activity, .activity-item");'
-            . 'var lockedcmids={};'
             . 'activities.forEach(function(act, index){'
             . 'if(index<=lockfrom){'
             . 'act.classList.remove("activity-locked");'
@@ -310,8 +320,6 @@ class hook_callbacks {
             . '}'
             . 'if(index>lockfrom){'
             . 'act.classList.add("activity-locked");'
-            . 'var cmid=act.getAttribute("data-id")||act.dataset.id||"";'
-            . 'if(cmid){lockedcmids[cmid]=true;}'
             . 'if(!act.querySelector(".locked-message")){' 
             . 'var msg=document.createElement("div");'
             . 'msg.className="locked-message";'
@@ -320,6 +328,7 @@ class hook_callbacks {
             . '}'
             . '}'
             . '});'
+            . '}'
             . 'var courseindex=document.getElementById("courseindex")||document.querySelector("[data-region=\\"courseindex\\"]");'
             . 'if(courseindex){'
             . 'var items=courseindex.querySelectorAll("li.courseindex-item[data-for=\\"cm\\"][data-id]");'
@@ -542,6 +551,15 @@ class hook_callbacks {
                 return;
             }
 
+            $markviewed = static function() use ($CFG, $cm): void {
+                require_once($CFG->libdir . '/completionlib.php');
+                $course = get_course($cm->course);
+                $completion = new completion_info($course);
+                if ($completion->is_enabled($cm)) {
+                    $completion->set_module_viewed($cm);
+                }
+            };
+
             $allcms = $DB->get_records_sql(
                 'SELECT cm.id
                    FROM {course_modules} cm
@@ -554,6 +572,7 @@ class hook_callbacks {
 
             // Always allow first activity.
             if (empty($cmids) || $cmid == $cmids[0]) {
+                $markviewed();
                 return;
             }
 
@@ -573,6 +592,7 @@ class hook_callbacks {
             );
 
             if ($completed) {
+                $markviewed();
                 return;
             }
 
