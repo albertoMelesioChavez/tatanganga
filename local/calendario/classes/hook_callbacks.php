@@ -263,6 +263,7 @@ class hook_callbacks {
                JOIN {course_sections} cs ON cs.id = cm.section
               WHERE cm.course = :courseid
                 AND cm.visible = 1
+                AND cs.section > 0
            ORDER BY cs.section ASC, cm.id ASC',
             ['courseid' => 4]
         );
@@ -566,6 +567,7 @@ class hook_callbacks {
                    JOIN {course_sections} cs ON cs.id = cm.section
                   WHERE cm.course = 4
                     AND cm.visible = 1
+                    AND cs.section > 0
                ORDER BY cs.section ASC, cm.id ASC'
             );
             $cmids = array_keys($allcms);
