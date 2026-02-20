@@ -27,10 +27,8 @@ class local_stripe_observer {
             }
         }
 
-        // Enrol in the first course (lowest id > 1).
-        $firstcourse = $DB->get_record_sql(
-            'SELECT id FROM {course} WHERE id > 1 ORDER BY id ASC LIMIT 1'
-        );
+        // Enrol in the first course (Empieza aquí) which is course id 4.
+        $firstcourse = $DB->get_record('course', ['id' => 4], 'id', IGNORE_MISSING);
         if (!$firstcourse) {
             return;
         }
