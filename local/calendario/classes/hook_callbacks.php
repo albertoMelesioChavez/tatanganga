@@ -132,6 +132,11 @@ class hook_callbacks {
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
 
+        // Do not interfere with course editing UI/saving.
+        if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
+            return;
+        }
+
         // First course (Empieza aquí): progressive unlocking for non-suscriptors should always apply on course view.
         // This must run before any early returns below.
         $pagecourseid = 0;
@@ -223,6 +228,11 @@ class hook_callbacks {
         global $PAGE, $DB, $COURSE, $USER;
 
         if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        // Do not interfere with course editing UI/saving.
+        if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
             return;
         }
 
@@ -340,7 +350,11 @@ class hook_callbacks {
      * @param before_standard_top_of_body_html_generation $hook
      */
     private static function inject_course_nav_buttons(before_standard_top_of_body_html_generation $hook): void {
-        global $DB, $COURSE;
+        global $DB, $COURSE, $PAGE;
+
+        if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
+            return;
+        }
 
         $section = optional_param('section', 0, PARAM_INT);
         $firstsection = (int) $DB->get_field_sql(
