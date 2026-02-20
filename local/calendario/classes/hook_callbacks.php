@@ -258,17 +258,27 @@ class hook_callbacks {
 
         $cmids = [];
         $allcms = $DB->get_records_sql(
-            'SELECT cm.id
+            'SELECT cm.id, cs.section
                FROM {course_modules} cm
                JOIN {course_sections} cs ON cs.id = cm.section
               WHERE cm.course = :courseid
                 AND cm.visible = 1
-                AND cs.section > 0
            ORDER BY cs.section ASC, cm.id ASC',
             ['courseid' => 4]
         );
         if (!empty($allcms)) {
-            $cmids = array_values(array_keys($allcms));
+            $hassectiongt0 = false;
+            foreach ($allcms as $r) {
+                if ((int) $r->section > 0) {
+                    $hassectiongt0 = true;
+                    break;
+                }
+            }
+            foreach ($allcms as $r) {
+                if (!$hassectiongt0 || (int) $r->section > 0) {
+                    $cmids[] = (int) $r->id;
+                }
+            }
         }
         if (empty($cmids)) {
             return;
@@ -562,15 +572,28 @@ class hook_callbacks {
             };
 
             $allcms = $DB->get_records_sql(
-                'SELECT cm.id
+                'SELECT cm.id, cs.section
                    FROM {course_modules} cm
                    JOIN {course_sections} cs ON cs.id = cm.section
                   WHERE cm.course = 4
                     AND cm.visible = 1
-                    AND cs.section > 0
                ORDER BY cs.section ASC, cm.id ASC'
             );
-            $cmids = array_keys($allcms);
+            $cmids = [];
+            if (!empty($allcms)) {
+                $hassectiongt0 = false;
+                foreach ($allcms as $r) {
+                    if ((int) $r->section > 0) {
+                        $hassectiongt0 = true;
+                        break;
+                    }
+                }
+                foreach ($allcms as $r) {
+                    if (!$hassectiongt0 || (int) $r->section > 0) {
+                        $cmids[] = (int) $r->id;
+                    }
+                }
+            }
 
             // Always allow first activity.
             if (empty($cmids) || $cmid == $cmids[0]) {
