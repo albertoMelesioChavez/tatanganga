@@ -518,8 +518,16 @@ class hook_callbacks {
         global $CFG, $DB;
         
         // Only check activity pages.
-        $script = substr($hook->get_script(), strlen($CFG->wwwroot));
-        if (!preg_match('#^mod/[^/]+/view\.php$#', $script)) {
+        $script = (string) $hook->get_script();
+        if (!empty($CFG->wwwroot) && str_starts_with($script, $CFG->wwwroot)) {
+            $script = substr($script, strlen($CFG->wwwroot));
+        }
+        $path = parse_url($script, PHP_URL_PATH);
+        if ($path === null) {
+            $path = $script;
+        }
+        $path = ltrim((string) $path, '/');
+        if (!preg_match('#^mod/[^/]+/view\.php$#', $path)) {
             return;
         }
 

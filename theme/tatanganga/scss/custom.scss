@@ -989,6 +989,10 @@ body:not(.editing) .activity-locked a {
     pointer-events: none;
 }
 
+body:not(.editing) #courseindex .courseindex-item.restrictions .courseindex-link {
+    pointer-events: none;
+}
+
 .activity-locked .actions {
     display: none;
 }
