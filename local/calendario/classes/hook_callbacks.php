@@ -137,20 +137,6 @@ class hook_callbacks {
             return;
         }
 
-        // First course (Empieza aquí): progressive unlocking for non-suscriptors should always apply on course view.
-        // This must run before any early returns below.
-        $pagecourseid = 0;
-        if (isset($PAGE->course) && !empty($PAGE->course->id)) {
-            $pagecourseid = (int) $PAGE->course->id;
-        } else if (isset($COURSE->id)) {
-            $pagecourseid = (int) $COURSE->id;
-        } else {
-            $pagecourseid = (int) optional_param('id', 0, PARAM_INT);
-        }
-        if ($pagecourseid === 4) {
-            self::inject_course4_progressive_lock($hook);
-        }
-
         // Skip banner for admins.
         if (is_siteadmin()) {
             // Still inject course navigation buttons on course pages.
@@ -213,156 +199,6 @@ class hook_callbacks {
             self::inject_course_nav_buttons($hook);
         }
 
-        // First course progressive unlocking is injected earlier to avoid early returns.
-    }
-
-    /**
-     * Inject progressive activity locking on the course view for course 4.
-     *
-     * This is intentionally independent from inject_course_nav_buttons() because that method
-     * may return early when there are no prev/next buttons for the current section.
-     *
-     * @param before_standard_top_of_body_html_generation $hook
-     */
-    private static function inject_course4_progressive_lock(before_standard_top_of_body_html_generation $hook): void {
-        global $PAGE, $DB, $COURSE, $USER;
-
-        if (!isloggedin() || isguestuser()) {
-            return;
-        }
-
-        // Do not interfere with course editing UI/saving.
-        if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
-            return;
-        }
-
-        $courseid = 0;
-        if (isset($PAGE->course) && !empty($PAGE->course->id)) {
-            $courseid = (int) $PAGE->course->id;
-        } else if (!empty($COURSE->id)) {
-            $courseid = (int) $COURSE->id;
-        } else {
-            $courseid = (int) optional_param('id', 0, PARAM_INT);
-        }
-
-        if ($courseid !== 4) {
-            return;
-        }
-
-        $path = $PAGE->url ? $PAGE->url->get_path() : '';
-        $iscourseview = ($path === '/course/view.php');
-        $isactivityview = (!empty($path) && preg_match('#^/mod/[^/]+/view\.php$#', $path));
-        if (!$iscourseview && !$isactivityview) {
-            return;
-        }
-
-        $cmids = [];
-        $allcms = $DB->get_records_sql(
-            'SELECT cm.id, cs.section
-               FROM {course_modules} cm
-               JOIN {course_sections} cs ON cs.id = cm.section
-              WHERE cm.course = :courseid
-                AND cm.visible = 1
-           ORDER BY cs.section ASC, cm.id ASC',
-            ['courseid' => 4]
-        );
-        if (!empty($allcms)) {
-            $hassectiongt0 = false;
-            foreach ($allcms as $r) {
-                if ((int) $r->section > 0) {
-                    $hassectiongt0 = true;
-                    break;
-                }
-            }
-            foreach ($allcms as $r) {
-                if (!$hassectiongt0 || (int) $r->section > 0) {
-                    $cmids[] = (int) $r->id;
-                }
-            }
-        }
-        if (empty($cmids)) {
-            return;
-        }
-
-        $completed = $DB->get_records_sql(
-            'SELECT cmc.coursemoduleid
-               FROM {course_modules_completion} cmc
-              WHERE cmc.userid = :userid
-                AND cmc.completionstate > 0',
-            ['userid' => $USER->id]
-        );
-        $completedset = array_fill_keys(array_map(static function($r) {
-            return (int) $r->coursemoduleid;
-        }, $completed), true);
-
-        $lastunlockedindex = 0;
-        for ($i = 1; $i < count($cmids); $i++) {
-            $prevcmid = (int) $cmids[$i - 1];
-            if (!isset($completedset[$prevcmid])) {
-                break;
-            }
-            $lastunlockedindex = $i;
-        }
-
-        $lockedcmids = [];
-        for ($i = 0; $i < count($cmids); $i++) {
-            if ($i > $lastunlockedindex) {
-                $lockedcmids[(int) $cmids[$i]] = true;
-            }
-        }
-        $lockedcmidsjson = json_encode($lockedcmids);
-
-        $html = '<script>document.addEventListener("DOMContentLoaded",function(){'
-            . 'if(window.__lc_course4_lock_applied){return;}window.__lc_course4_lock_applied=true;'
-            . 'var lockfrom=' . ((int) $lastunlockedindex) . ';'
-            . 'var lockedcmids=' . ($lockedcmidsjson ?: '{}') . ';'
-            . 'var applying=false;'
-            . 'var applyLock=function(){'
-            . 'if(applying){return;}applying=true;'
-            . 'var container=document.querySelector("#region-main [data-for=\\"cmlist\\"]")||document.querySelector("[role=main] [data-for=\\"cmlist\\"]")||document.querySelector("[data-for=\\"cmlist\\"]");'
-            . 'if(container){'
-            . 'var activities=container.querySelectorAll(".activity, .activity-item");'
-            . 'activities.forEach(function(act){'
-            . 'var cmid=act.getAttribute("data-id")||act.dataset.id||"";'
-            . 'if(cmid&&lockedcmids[cmid]){'
-            . 'act.classList.add("activity-locked");'
-            . 'if(!act.querySelector(".locked-message")){' 
-            . 'var msg=document.createElement("div");'
-            . 'msg.className="locked-message";'
-            . 'msg.innerHTML="🔒 Completa la clase anterior para desbloquear esta.";'
-            . 'act.appendChild(msg);'
-            . '}'
-            . '}else if(cmid){'
-            . 'act.classList.remove("activity-locked");'
-            . 'var old=act.querySelector(".locked-message");'
-            . 'if(old){old.remove();}'
-            . '}'
-            . '});'
-            . '}'
-            . 'var courseindex=document.getElementById("courseindex")||document.querySelector("[data-region=\\"courseindex\\"]");'
-            . 'if(courseindex){'
-            . 'var items=courseindex.querySelectorAll("li.courseindex-item[data-for=\\"cm\\"][data-id]");'
-            . 'items.forEach(function(item){'
-            . 'var id=item.getAttribute("data-id");'
-            . 'if(id&&lockedcmids[id]){item.classList.add("restrictions","dimmed");}else{item.classList.remove("restrictions","dimmed");}'
-            . '});'
-            . '}'
-            . 'applying=false;'
-            . '};'
-            . 'applyLock();'
-            . 'setTimeout(applyLock,400);'
-            . 'try{'
-            . 'var target=document.querySelector("[data-region=course-content]")||document.getElementById("page");'
-            . 'if(target&&window.MutationObserver){'
-            . 'var scheduled=false;'
-            . 'var schedule=function(){if(scheduled){return;}scheduled=true;setTimeout(function(){scheduled=false;applyLock();},250);};'
-            . 'var obs=new MutationObserver(function(){schedule();});'
-            . 'obs.observe(target,{subtree:true,childList:true});'
-            . '}'
-            . '}catch(e){}'
-            . '});</script>';
-
-        $hook->add_html($html);
     }
 
     /**
@@ -459,43 +295,6 @@ class hook_callbacks {
         $shouldlock = $hassuscriptorcap ? 'false' : 'true';
 
         $courseid = (int) ($COURSE->id ?? 0);
-        $lastunlockedindex = 0;
-        if ($courseid === 4) {
-            $cmids = [];
-            $allcms = $DB->get_records_sql(
-                'SELECT cm.id
-                   FROM {course_modules} cm
-                   JOIN {course_sections} cs ON cs.id = cm.section
-                  WHERE cm.course = :courseid
-                    AND cm.visible = 1
-               ORDER BY cs.section ASC, cm.id ASC',
-                ['courseid' => 4]
-            );
-            if (!empty($allcms)) {
-                $cmids = array_values(array_keys($allcms));
-            }
-
-            if (!empty($cmids) && isloggedin() && !isguestuser()) {
-                $completed = $DB->get_records_sql(
-                    'SELECT cmc.coursemoduleid
-                       FROM {course_modules_completion} cmc
-                      WHERE cmc.userid = :userid
-                        AND cmc.completionstate > 0',
-                    ['userid' => $USER->id]
-                );
-                $completedset = array_fill_keys(array_map(static function($r) {
-                    return (int) $r->coursemoduleid;
-                }, $completed), true);
-
-                for ($i = 1; $i < count($cmids); $i++) {
-                    $prevcmid = (int) $cmids[$i - 1];
-                    if (!isset($completedset[$prevcmid])) {
-                        break;
-                    }
-                    $lastunlockedindex = $i;
-                }
-            }
-        }
 
         $html = '<div class="course-nav-buttons" id="course-nav-buttons" style="display:none">'
             . $prevhtml . $nexthtml
@@ -507,18 +306,13 @@ class hook_callbacks {
             . 'if(' . $shouldlock . '){'
             . 'var activities=document.querySelectorAll(".activity, .activity-item");'
             . 'var courseid=' . $courseid . ';'
-            . 'var isFirstCourse = (courseid === 4);'
-            . 'var lockfrom = isFirstCourse ? ' . ((int) $lastunlockedindex) . ' : 0;'
+            . 'var lockfrom = 0;'
             . 'activities.forEach(function(act, index){'
             . 'if(index > lockfrom){'
             . 'act.classList.add("activity-locked");'
             . 'var msg=document.createElement("div");'
             . 'msg.className="locked-message";'
-            . 'if(isFirstCourse){'
-            . 'msg.innerHTML="🔒 Completa la clase anterior para desbloquear esta.";'
-            . '}else{'
             . 'msg.innerHTML="🔒 Esta clase requiere suscripción. <a href=\\"/local/stripe/index.php\\">Suscríbete aquí</a> para desbloquear todo el contenido.";'
-            . '}'
             . 'act.appendChild(msg);'
             . '}'
             . '});'
@@ -554,74 +348,9 @@ class hook_callbacks {
         $cmid = required_param('id', PARAM_INT);
         $cm = get_coursemodule_from_id('', $cmid, 0, true);
 
-        // First course (Empieza aquí): allow sequential access based on completion for ALL users (except guest/admin).
+        // Course 4 should not be restricted by the sequential unlock logic.
         if ($cm->course == 4) {
-            global $USER;
-            if (isguestuser() || is_siteadmin()) {
-                return;
-            }
-
-            $markviewed = static function() use ($CFG, $cm): void {
-                require_once($CFG->libdir . '/completionlib.php');
-                $course = get_course($cm->course);
-                $completion = new completion_info($course);
-                if ($completion->is_enabled($cm)) {
-                    $completion->set_module_viewed($cm);
-                }
-            };
-
-            $allcms = $DB->get_records_sql(
-                'SELECT cm.id, cs.section
-                   FROM {course_modules} cm
-                   JOIN {course_sections} cs ON cs.id = cm.section
-                  WHERE cm.course = 4
-                    AND cm.visible = 1
-               ORDER BY cs.section ASC, cm.id ASC'
-            );
-            $cmids = [];
-            if (!empty($allcms)) {
-                $hassectiongt0 = false;
-                foreach ($allcms as $r) {
-                    if ((int) $r->section > 0) {
-                        $hassectiongt0 = true;
-                        break;
-                    }
-                }
-                foreach ($allcms as $r) {
-                    if (!$hassectiongt0 || (int) $r->section > 0) {
-                        $cmids[] = (int) $r->id;
-                    }
-                }
-            }
-
-            // Always allow first activity.
-            if (empty($cmids) || $cmid == $cmids[0]) {
-                $markviewed();
-                return;
-            }
-
-            $pos = array_search($cmid, $cmids);
-            if ($pos === false) {
-                return;
-            }
-
-            $prevcmid = (int) $cmids[$pos - 1];
-            $completed = $DB->record_exists_sql(
-                'SELECT 1
-                   FROM {course_modules_completion}
-                  WHERE userid = :userid
-                    AND coursemoduleid = :cmid
-                    AND completionstate > 0',
-                ['userid' => $USER->id, 'cmid' => $prevcmid]
-            );
-
-            if ($completed) {
-                $markviewed();
-                return;
-            }
-
-            $courseurl = new moodle_url('/course/view.php', ['id' => 4]);
-            redirect($courseurl, '🔒 Completa la clase anterior para desbloquear esta.');
+            return;
         }
         
         // Skip if user is suscriptor or guest.
