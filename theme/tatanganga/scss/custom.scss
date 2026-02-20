@@ -985,11 +985,11 @@ body.path-course-view #topofscroll {
     }
 }
 
-body:not(.editing) .activity-locked a {
+.activity-locked a {
     pointer-events: none;
 }
 
-body:not(.editing) .activity-locked .courseindex-link {
+.activity-locked .courseindex-link {
     pointer-events: none;
 }
 
