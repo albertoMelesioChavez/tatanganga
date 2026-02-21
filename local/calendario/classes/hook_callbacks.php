@@ -340,7 +340,7 @@ class hook_callbacks {
         }
         $path = ltrim((string) $path, '/');
 
-        if ($path === 'course/modedit.php' && (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')) {
+        if ((($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') && (str_contains($path, 'course/modedit.php') || str_ends_with($path, 'modedit.php'))) {
             $update = $_REQUEST['update'] ?? null;
             $sesskey = $_REQUEST['sesskey'] ?? null;
             $contentlength = $_SERVER['CONTENT_LENGTH'] ?? null;
@@ -349,13 +349,18 @@ class hook_callbacks {
             $keys = is_array($_POST ?? null) ? array_keys($_POST) : [];
             $keys = array_slice($keys, 0, 30);
 
-            error_log('[local_calendario][modedit] method=POST'
+            $logline = '[local_calendario][modedit] method=POST'
                 . ' update=' . (is_scalar($update) ? (string) $update : 'null')
                 . ' sesskey_present=' . (!empty($sesskey) ? '1' : '0')
                 . ' content_length=' . (is_scalar($contentlength) ? (string) $contentlength : 'null')
                 . ' post_count=' . $postcount
                 . ' max_input_vars=' . (is_scalar($maxinputvars) ? (string) $maxinputvars : 'null')
-                . ' post_keys=' . json_encode($keys));
+                . ' post_keys=' . json_encode($keys);
+
+            error_log($logline);
+            if (!empty($CFG->dataroot)) {
+                @file_put_contents($CFG->dataroot . '/local_calendario_modedit_debug.log', $logline . "\n", FILE_APPEND);
+            }
         }
 
         // Only check activity pages.
