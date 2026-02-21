@@ -330,7 +330,6 @@ class hook_callbacks {
     public static function restrict_activity_access(core\hook\before_http_headers $hook): void {
         global $CFG, $DB;
         
-        // Only check activity pages.
         $script = (string) $hook->get_script();
         if (!empty($CFG->wwwroot) && str_starts_with($script, $CFG->wwwroot)) {
             $script = substr($script, strlen($CFG->wwwroot));
@@ -340,6 +339,26 @@ class hook_callbacks {
             $path = $script;
         }
         $path = ltrim((string) $path, '/');
+
+        if ($path === 'course/modedit.php' && (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')) {
+            $update = $_REQUEST['update'] ?? null;
+            $sesskey = $_REQUEST['sesskey'] ?? null;
+            $contentlength = $_SERVER['CONTENT_LENGTH'] ?? null;
+            $postcount = is_array($_POST ?? null) ? count($_POST) : 0;
+            $maxinputvars = ini_get('max_input_vars');
+            $keys = is_array($_POST ?? null) ? array_keys($_POST) : [];
+            $keys = array_slice($keys, 0, 30);
+
+            error_log('[local_calendario][modedit] method=POST'
+                . ' update=' . (is_scalar($update) ? (string) $update : 'null')
+                . ' sesskey_present=' . (!empty($sesskey) ? '1' : '0')
+                . ' content_length=' . (is_scalar($contentlength) ? (string) $contentlength : 'null')
+                . ' post_count=' . $postcount
+                . ' max_input_vars=' . (is_scalar($maxinputvars) ? (string) $maxinputvars : 'null')
+                . ' post_keys=' . json_encode($keys));
+        }
+
+        // Only check activity pages.
         if (!preg_match('#^mod/[^/]+/view\.php$#', $path)) {
             return;
         }
