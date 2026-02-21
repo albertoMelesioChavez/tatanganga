@@ -343,6 +343,17 @@ class hook_callbacks {
         $requesturi = (string) ($_SERVER['REQUEST_URI'] ?? '');
         $scriptname = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
 
+        if (str_contains($requesturi, '/course/modedit.php') || str_contains($scriptname, '/course/modedit.php')) {
+            file_put_contents('/tmp/local_calendario_modedit_hook.log',
+                date('c') . ' method=' . (string) ($_SERVER['REQUEST_METHOD'] ?? '')
+                . ' hook_script=' . $script
+                . ' path=' . $path
+                . ' request_uri=' . $requesturi
+                . ' script_name=' . $scriptname
+                . "\n",
+                FILE_APPEND);
+        }
+
         if ((($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
             && (
                 str_contains($path, 'course/modedit.php')
@@ -379,6 +390,8 @@ class hook_callbacks {
                     error_log('[local_calendario][modedit] failed_to_write_debugfile=' . $debugfile);
                 }
             }
+
+            file_put_contents('/tmp/local_calendario_modedit_post.log', $logline . "\n", FILE_APPEND);
         }
 
         // Only check activity pages.
