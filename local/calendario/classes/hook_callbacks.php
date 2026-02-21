@@ -340,7 +340,16 @@ class hook_callbacks {
         }
         $path = ltrim((string) $path, '/');
 
-        if ((($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') && (str_contains($path, 'course/modedit.php') || str_ends_with($path, 'modedit.php'))) {
+        $requesturi = (string) ($_SERVER['REQUEST_URI'] ?? '');
+        $scriptname = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+
+        if ((($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')
+            && (
+                str_contains($path, 'course/modedit.php')
+                || str_ends_with($path, 'modedit.php')
+                || str_contains($requesturi, '/course/modedit.php')
+                || str_contains($scriptname, '/course/modedit.php')
+            )) {
             $update = $_REQUEST['update'] ?? null;
             $sesskey = $_REQUEST['sesskey'] ?? null;
             $contentlength = $_SERVER['CONTENT_LENGTH'] ?? null;
@@ -350,6 +359,10 @@ class hook_callbacks {
             $keys = array_slice($keys, 0, 30);
 
             $logline = '[local_calendario][modedit] method=POST'
+                . ' hook_script=' . $script
+                . ' path=' . $path
+                . ' request_uri=' . $requesturi
+                . ' script_name=' . $scriptname
                 . ' update=' . (is_scalar($update) ? (string) $update : 'null')
                 . ' sesskey_present=' . (!empty($sesskey) ? '1' : '0')
                 . ' content_length=' . (is_scalar($contentlength) ? (string) $contentlength : 'null')
@@ -359,7 +372,11 @@ class hook_callbacks {
 
             error_log($logline);
             if (!empty($CFG->dataroot)) {
-                @file_put_contents($CFG->dataroot . '/local_calendario_modedit_debug.log', $logline . "\n", FILE_APPEND);
+                $debugfile = $CFG->dataroot . '/local_calendario_modedit_debug.log';
+                $result = file_put_contents($debugfile, $logline . "\n", FILE_APPEND);
+                if ($result === false) {
+                    error_log('[local_calendario][modedit] failed_to_write_debugfile=' . $debugfile);
+                }
             }
         }
 
