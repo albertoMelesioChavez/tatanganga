@@ -373,6 +373,7 @@ class hook_callbacks {
             error_log($logline);
             if (!empty($CFG->dataroot)) {
                 $debugfile = $CFG->dataroot . '/local_calendario_modedit_debug.log';
+                error_log($logline . "\n", 3, $debugfile);
                 $result = file_put_contents($debugfile, $logline . "\n", FILE_APPEND);
                 if ($result === false) {
                     error_log('[local_calendario][modedit] failed_to_write_debugfile=' . $debugfile);
