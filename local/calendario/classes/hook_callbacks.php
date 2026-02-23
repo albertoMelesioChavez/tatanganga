@@ -361,6 +361,39 @@ class hook_callbacks {
                 || str_contains($requesturi, '/course/modedit.php')
                 || str_contains($scriptname, '/course/modedit.php')
             )) {
+            if (!empty($_REQUEST['debugmodedit']) && is_siteadmin()) {
+                $update = $_REQUEST['update'] ?? null;
+                $sesskey = $_REQUEST['sesskey'] ?? null;
+                $contentlength = $_SERVER['CONTENT_LENGTH'] ?? null;
+                $postcount = is_array($_POST ?? null) ? count($_POST) : 0;
+                $maxinputvars = ini_get('max_input_vars');
+                $postmaxsize = ini_get('post_max_size');
+                $uploadmaxfilesize = ini_get('upload_max_filesize');
+                $memorylimit = ini_get('memory_limit');
+                $keys = is_array($_POST ?? null) ? array_keys($_POST) : [];
+                $keys = array_slice($keys, 0, 200);
+
+                @header('Content-Type: text/plain; charset=utf-8');
+                @header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+
+                echo "local_calendario modedit debug\n";
+                echo 'method=' . (string) ($_SERVER['REQUEST_METHOD'] ?? '') . "\n";
+                echo 'hook_script=' . $script . "\n";
+                echo 'path=' . $path . "\n";
+                echo 'request_uri=' . $requesturi . "\n";
+                echo 'script_name=' . $scriptname . "\n";
+                echo 'update=' . (is_scalar($update) ? (string) $update : 'null') . "\n";
+                echo 'sesskey_present=' . (!empty($sesskey) ? '1' : '0') . "\n";
+                echo 'content_length=' . (is_scalar($contentlength) ? (string) $contentlength : 'null') . "\n";
+                echo 'post_count=' . $postcount . "\n";
+                echo 'max_input_vars=' . (is_scalar($maxinputvars) ? (string) $maxinputvars : 'null') . "\n";
+                echo 'post_max_size=' . (is_scalar($postmaxsize) ? (string) $postmaxsize : 'null') . "\n";
+                echo 'upload_max_filesize=' . (is_scalar($uploadmaxfilesize) ? (string) $uploadmaxfilesize : 'null') . "\n";
+                echo 'memory_limit=' . (is_scalar($memorylimit) ? (string) $memorylimit : 'null') . "\n";
+                echo 'post_keys=' . json_encode($keys) . "\n";
+                exit;
+            }
+
             $update = $_REQUEST['update'] ?? null;
             $sesskey = $_REQUEST['sesskey'] ?? null;
             $contentlength = $_SERVER['CONTENT_LENGTH'] ?? null;

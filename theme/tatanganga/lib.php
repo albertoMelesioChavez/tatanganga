@@ -55,6 +55,19 @@ function theme_tatanganga_get_extra_scss($theme) {
 }
 
 /**
+ * Get the JavaScript AMD modules to load.
+ *
+ * @param theme_config $theme The theme config object.
+ * @return array
+ */
+function theme_tatanganga_page_requirements(theme_config $theme) {
+    global $PAGE;
+    
+    // Load our form display errors fix to override Boost's broken selector.
+    $PAGE->requires->js_call_amd('theme_tatanganga/form-display-errors-fix', 'init');
+}
+
+/**
  * Get SCSS to prepend.
  *
  * @param theme_config $theme The theme config object.

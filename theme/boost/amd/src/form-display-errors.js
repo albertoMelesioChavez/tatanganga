@@ -126,7 +126,7 @@ define(['jquery', 'core_form/events'], function($, FormEvent) {
             var form = element.closest('form');
             if (form && !('boostFormErrorsEnhanced' in form.dataset)) {
                 form.addEventListener('submit', function() {
-                    var visibleError = $('.form-control-feedback:visible');
+                    var visibleError = $('.form-control-feedback').filter(':visible');
                     if (visibleError.length) {
                         visibleError[0].focus();
                     }
