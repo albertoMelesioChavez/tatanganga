@@ -126,8 +126,14 @@ define(['jquery', 'core_form/events'], function($, FormEvent) {
             var form = element.closest('form');
             if (form && !('boostFormErrorsEnhanced' in form.dataset)) {
                 form.addEventListener('submit', function() {
-                    var visibleError = $('.form-control-feedback').filter(':visible');
+                    console.log('[Boost Form Debug] Submit handler triggered');
+                    var allFeedback = $(form).find('.form-control-feedback');
+                    console.log('[Boost Form Debug] All .form-control-feedback elements:', allFeedback.length);
+                    var visibleError = allFeedback.filter(':visible');
+                    console.log('[Boost Form Debug] Visible .form-control-feedback elements:', visibleError.length);
+                    console.log('[Boost Form Debug] Visible error elements:', visibleError.get());
                     if (visibleError.length) {
+                        console.log('[Boost Form Debug] Focusing on first visible error');
                         visibleError[0].focus();
                     }
                 });
