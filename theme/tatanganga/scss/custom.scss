@@ -1027,3 +1027,307 @@ body:not(.editing) .activity-locked a {
         margin-left: 0;
     }
 }
+
+// --------------------------------------------------------------------------
+// Community Forum — Skool-style
+// --------------------------------------------------------------------------
+.format-social {
+
+    // "Escribe algo" — new discussion button styled as input bar.
+    .discussionforum .d-flex .btn-primary,
+    .singlebutton button[type="submit"],
+    a[href*="post.php?forum="] {
+        background: $tt-card-bg !important;
+        color: $tt-text-secondary !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 24px !important;
+        padding: 12px 20px !important;
+        font-weight: 400 !important;
+        text-align: left !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        width: 100%;
+        max-width: 680px;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+
+        &:hover, &:focus {
+            border-color: #8B1538 !important;
+            box-shadow: 0 0 0 2px rgba(139, 21, 56, 0.1) !important;
+            color: $tt-text-primary !important;
+        }
+    }
+
+    // Discussion list — card style.
+    .discussion-list,
+    .forumpost,
+    .forum-post-container,
+    .post-content-container,
+    article[data-region="post"] {
+        background: $tt-card-bg !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: $tt-card-radius !important;
+        padding: 16px 20px !important;
+        margin-bottom: 12px !important;
+        box-shadow: $tt-card-shadow !important;
+        transition: box-shadow 0.2s !important;
+
+        &:hover {
+            box-shadow: $tt-card-shadow-hover !important;
+        }
+    }
+
+    // Discussion list items.
+    .discussion-list-item,
+    .discussion .topic,
+    tr.discussion {
+        background: $tt-card-bg !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: $tt-card-radius !important;
+        padding: 16px 20px !important;
+        margin-bottom: 12px !important;
+        box-shadow: $tt-card-shadow !important;
+        transition: box-shadow 0.2s, border-color 0.2s !important;
+        display: block !important;
+
+        &:hover {
+            box-shadow: $tt-card-shadow-hover !important;
+            border-color: rgba(139, 21, 56, 0.3) !important;
+        }
+
+        td {
+            border: none !important;
+            padding: 4px 0 !important;
+        }
+    }
+
+    // Discussion table — remove table styling.
+    .table, table.generaltable {
+        border-collapse: separate !important;
+        border-spacing: 0 8px !important;
+        border: none !important;
+
+        thead {
+            display: none !important;
+        }
+
+        tbody tr {
+            background: $tt-card-bg !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: $tt-card-radius !important;
+            box-shadow: $tt-card-shadow !important;
+            margin-bottom: 8px !important;
+        }
+    }
+
+    // Author info — avatar + name inline.
+    .author-info,
+    .post-header,
+    .discussionname {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    // Avatars — rounded.
+    .userpicture,
+    img.userpicture {
+        border-radius: 50% !important;
+        width: 40px !important;
+        height: 40px !important;
+        object-fit: cover !important;
+        border: 2px solid #f0f0f0 !important;
+    }
+
+    // Author name.
+    .author-info .userlink,
+    .author-info a,
+    .post-header a {
+        font-weight: 600 !important;
+        color: $tt-text-primary !important;
+        font-size: 0.95rem !important;
+        text-decoration: none !important;
+    }
+
+    // Date/time — muted, smaller.
+    .post-header .text-muted,
+    .author-info time,
+    .discussionlastpost,
+    td.lastpost {
+        color: $tt-text-muted !important;
+        font-size: 0.8rem !important;
+    }
+
+    // Post content.
+    .post-content,
+    .posting {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        color: $tt-text-primary !important;
+        margin-top: 8px !important;
+    }
+
+    // Reply count badge.
+    .discussion-replies,
+    td.replies {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        color: $tt-text-secondary !important;
+        font-size: 0.85rem !important;
+
+        &::before {
+            content: "💬" !important;
+        }
+    }
+
+    // Pinned badge.
+    .discussion-pinned,
+    .badge-info {
+        background: rgba(139, 21, 56, 0.08) !important;
+        color: #8B1538 !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 2px 10px !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+    }
+
+    // Subscribe toggle.
+    .discussionsubscription,
+    td.discussionsubscription {
+        .toggle-switch,
+        .custom-control-label {
+            &::before {
+                border-color: #8B1538 !important;
+            }
+        }
+        .custom-control-input:checked ~ .custom-control-label::before {
+            background: #8B1538 !important;
+            border-color: #8B1538 !important;
+        }
+    }
+
+    // Search bar.
+    .forumsearch input[type="text"],
+    input[name="search"] {
+        border-radius: 20px !important;
+        border: 1px solid #e5e7eb !important;
+        padding: 8px 16px !important;
+        background: #f9fafb !important;
+        font-size: 0.9rem !important;
+
+        &:focus {
+            border-color: #8B1538 !important;
+            box-shadow: 0 0 0 2px rgba(139, 21, 56, 0.1) !important;
+        }
+    }
+
+    // "Add discussion topic" button.
+    .btn-primary,
+    input[value="Add discussion topic"],
+    input[value="Add a new discussion topic"] {
+        background: #8B1538 !important;
+        border-color: #8B1538 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 8px 20px !important;
+
+        &:hover {
+            background: #6d1029 !important;
+            border-color: #6d1029 !important;
+        }
+    }
+
+    // Unsubscribe / secondary buttons.
+    .btn-secondary,
+    .btn-outline-secondary {
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        border-color: #e5e7eb !important;
+        color: $tt-text-secondary !important;
+
+        &:hover {
+            border-color: #8B1538 !important;
+            color: #8B1538 !important;
+            background: rgba(139, 21, 56, 0.04) !important;
+        }
+    }
+
+    // Page heading.
+    h2, .page-header-headings h1 {
+        font-weight: 700 !important;
+        color: $tt-text-primary !important;
+    }
+
+    // Tabs — navigation.
+    .nav-tabs {
+        border-bottom: 2px solid #f0f0f0 !important;
+
+        .nav-link {
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            color: $tt-text-secondary !important;
+            font-weight: 500 !important;
+            padding: 10px 18px !important;
+            border-radius: 0 !important;
+            transition: all 0.2s !important;
+
+            &:hover {
+                color: #8B1538 !important;
+                border-bottom-color: rgba(139, 21, 56, 0.3) !important;
+            }
+
+            &.active {
+                color: #8B1538 !important;
+                border-bottom-color: #8B1538 !important;
+                font-weight: 600 !important;
+                background: transparent !important;
+            }
+        }
+    }
+
+    // Remove default borders/backgrounds from forum.
+    .forumheaderlist,
+    .forumpost .row,
+    .discussionsubscription {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    // Community button inside forum.
+    .community-btn {
+        background: #8B1538 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        padding: 8px 18px !important;
+        font-weight: 600 !important;
+        border: none !important;
+    }
+}
+
+// Forum discussion view — replies.
+.path-mod-forum {
+    article[data-region="post"] {
+        border: 1px solid #e5e7eb !important;
+        border-radius: $tt-card-radius !important;
+        padding: 16px !important;
+        margin-bottom: 8px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    }
+
+    .userpicture {
+        border-radius: 50% !important;
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    // Reply button.
+    [data-region="post-action"] .btn-link,
+    .post-actions .btn {
+        color: #8B1538 !important;
+        font-weight: 500 !important;
+
+        &:hover {
+            color: #6d1029 !important;
+        }
+    }
+}
