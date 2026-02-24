@@ -105,7 +105,7 @@ class hook_callbacks {
         // Community link.
         $communityurl = new moodle_url('/local/calendario/community.php');
         $communitynode = navigation_node::create(
-            get_string('community', 'local_calendario'),
+            'Comunidad',
             $communityurl,
             navigation_node::TYPE_CUSTOM,
             null,
