@@ -153,7 +153,7 @@ $js = <<<JS
 (function() {
   var points = $pointsjson;
 
-  var map = L.map('usermap', { scrollWheelZoom: false }).setView([10, 20], 1);
+  var map = L.map('usermap', { scrollWheelZoom: false }).setView([10, 20], 1.5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 8,
     attribution: '&copy; OpenStreetMap'
