@@ -28,3 +28,6 @@ $string['usermap'] = 'Mapa de usuarios';
 $string['usermapintro'] = 'Ve de forma aproximada en qué parte del mundo está la comunidad. Por privacidad, los puntos están agregados por zona y no muestran ubicaciones exactas.';
 $string['unknownlocation'] = 'Ubicación no disponible';
 $string['map'] = 'Mapa';
+$string['community'] = 'Comunidad';
+$string['community_thread_intro'] = 'Hilo de discusión para: <strong>{$a}</strong>. ¡Comparte tus experiencias, preguntas y aprendizajes con la comunidad!';
+$string['community_button'] = 'Comentar en la comunidad';

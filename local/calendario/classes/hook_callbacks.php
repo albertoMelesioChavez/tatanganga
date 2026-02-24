@@ -101,15 +101,23 @@ class hook_callbacks {
             'local_calendario_usermap_primary'
         );
         $primary->add_node($node);
-    }
 
-    /**
-     * Inject subscription banner for non-subscribers on course pages.
-     *
-     * @param before_standard_top_of_body_html_generation $hook
-     */
+        // Community link.
+        $communityurl = new moodle_url('/local/calendario/community.php');
+        $communitynode = navigation_node::create(
+            get_string('community', 'local_calendario'),
+            $communityurl,
+            navigation_node::TYPE_CUSTOM,
+            null,
+            'local_calendario_community_primary'
+        );
+        $primary->add_node($communitynode);
+    }
     public static function inject_subscription_banner(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $USER, $DB, $COURSE;
+
+        // Community button for all logged-in users on activity pages.
+        self::inject_community_button($hook);
 
         // Do not interfere with course editing UI/saving.
         if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
@@ -178,6 +186,55 @@ class hook_callbacks {
             self::inject_course_nav_buttons($hook);
         }
 
+    }
+
+    /**
+     * Inject "Comentar en la comunidad" button on activity view pages.
+     *
+     * @param before_standard_top_of_body_html_generation $hook
+     */
+    private static function inject_community_button(before_standard_top_of_body_html_generation $hook): void {
+        global $PAGE;
+
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        // Only on activity view pages (mod/*/view.php).
+        $pagetype = $PAGE->pagetype ?? '';
+        if (!str_starts_with($pagetype, 'mod-') || !str_ends_with($pagetype, '-view')) {
+            return;
+        }
+
+        $cmid = $PAGE->cm->id ?? 0;
+        if (!$cmid) {
+            return;
+        }
+
+        $communityurl = new moodle_url('/local/calendario/community.php', ['cmid' => $cmid]);
+        $label = get_string('community_button', 'local_calendario');
+
+        $html = '<div id="community-button-container" style="display:none">'
+            . '<a href="' . $communityurl->out(false) . '" class="btn community-btn"'
+            . ' style="display:inline-flex;align-items:center;gap:6px;margin:12px 0;'
+            . 'background:#8B1538;color:#fff;border:none;border-radius:8px;padding:8px 18px;'
+            . 'font-weight:600;font-size:0.9rem;text-decoration:none;transition:background 0.2s;"'
+            . ' onmouseover="this.style.background=\'#6d1029\'"'
+            . ' onmouseout="this.style.background=\'#8B1538\'">'
+            . '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
+            . ' stroke-linecap="round" stroke-linejoin="round">'
+            . '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+            . '</svg>'
+            . $label
+            . '</a>'
+            . '</div>'
+            . '<script>document.addEventListener("DOMContentLoaded",function(){'
+            . 'var c=document.getElementById("community-button-container");'
+            . 'var a=document.getElementById("region-main")||document.getElementById("page-content");'
+            . 'if(c&&a){a.appendChild(c);c.style.display="";}'
+            . '});</script>';
+
+        $hook->add_html($html);
     }
 
     /**
