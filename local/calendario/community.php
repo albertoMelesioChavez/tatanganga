@@ -33,6 +33,8 @@ require_once($CFG->dirroot . '/mod/forum/lib.php');
 
 require_login();
 
+$PAGE->set_context(context_system::instance());
+
 // Community course and forum IDs.
 define('LOCAL_CALENDARIO_COMMUNITY_COURSEID', 12);
 define('LOCAL_CALENDARIO_COMMUNITY_FORUMID', 12);
@@ -89,8 +91,8 @@ if ($cmid) {
     $cm = get_coursemodule_from_id('', $cmid, 0, true);
     if ($cm) {
         $sourcecourse = $DB->get_record('course', ['id' => $cm->course]);
-        $activityname = format_string($cm->name);
-        $coursename = $sourcecourse ? format_string($sourcecourse->fullname) : '';
+        $activityname = $cm->name;
+        $coursename = $sourcecourse ? $sourcecourse->fullname : '';
         $subject = $activityname;
         if ($coursename) {
             $subject .= ' — ' . $coursename;
@@ -99,7 +101,7 @@ if ($cmid) {
 } else if ($courseid) {
     $sourcecourse = $DB->get_record('course', ['id' => $courseid]);
     if ($sourcecourse) {
-        $subject = format_string($sourcecourse->fullname);
+        $subject = $sourcecourse->fullname;
     }
 }
 
