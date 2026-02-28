@@ -20,6 +20,7 @@ use core\hook\navigation\secondary_extend;
 use core\hook\navigation\primary_extend;
 use core\hook\output\before_standard_top_of_body_html_generation;
 use core\hook\before_http_headers;
+use core\hook\course\course_list_filter;
 use navigation_node;
 use moodle_url;
 use context_course;
@@ -485,5 +486,27 @@ class hook_callbacks {
         // Other courses: redirect to subscription page.
         $courseurl = new moodle_url('/course/view.php', ['id' => $cm->course]);
         redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/index.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
+    }
+
+    /**
+     * Filter out community course from all course lists.
+     *
+     * @param course_list_filter $hook
+     */
+    public static function filter_community_course(course_list_filter $hook): void {
+        global $DB;
+        
+        $courses = $hook->get_courses();
+        $filtered = [];
+        
+        foreach ($courses as $course) {
+            // Skip community course by shortname.
+            if ($course->shortname === 'comunidad') {
+                continue;
+            }
+            $filtered[] = $course;
+        }
+        
+        $hook->set_courses($filtered);
     }
 }

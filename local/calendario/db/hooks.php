@@ -41,4 +41,8 @@ $callbacks = [
         'hook' => core\hook\before_http_headers::class,
         'callback' => 'local_calendario\hook_callbacks::restrict_activity_access',
     ],
+    [
+        'hook' => core\hook\course\course_list_filter::class,
+        'callback' => 'local_calendario\hook_callbacks::filter_community_course',
+    ],
 ];
