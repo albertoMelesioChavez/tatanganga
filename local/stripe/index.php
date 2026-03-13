@@ -39,19 +39,9 @@ if (empty($secretkey) || empty($priceid)) {
     $messages[] = html_writer::div('Stripe no está configurado. Contacta a soporte.', 'alert alert-danger');
 }
 
-if (optional_param('start', 0, PARAM_BOOL) && !empty($secretkey) && !empty($priceid)) {
-    $sessionurl = local_stripe_create_checkout_session(
-        $secretkey,
-        $priceid,
-        $successurl,
-        $cancelurl,
-        $USER
-    );
-    if ($sessionurl) {
-        redirect($sessionurl);
-    } else {
-        $messages[] = html_writer::div('No se pudo iniciar el pago. Intenta más tarde.', 'alert alert-danger');
-    }
+if (optional_param('start', 0, PARAM_BOOL)) {
+    // Redirigir directamente al Checkout Link de Stripe.
+    redirect('https://buy.stripe.com/bJe00jcgo7iDdrve7p8Ra00');
 }
 
 echo $OUTPUT->header();
@@ -72,45 +62,3 @@ echo html_writer::end_div();
 
 echo $OUTPUT->footer();
 
-/**
- * Create a Stripe checkout session.
- *
- * @param string $secretkey
- * @param string $priceid
- * @param string $successurl
- * @param string $cancelurl
- * @param stdClass $user
- * @return string|null
- */
-function local_stripe_create_checkout_session(string $secretkey, string $priceid, string $successurl, string $cancelurl, stdClass $user): ?string {
-    $payload = http_build_query([
-        'mode' => 'subscription',
-        'line_items[0][price]' => $priceid,
-        'line_items[0][quantity]' => 1,
-        'success_url' => $successurl,
-        'cancel_url' => $cancelurl,
-        'client_reference_id' => $user->id,
-        'customer_email' => $user->email,
-        'metadata[userid]' => $user->id,
-    ]);
-
-    $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $secretkey,
-        'Content-Type: application/x-www-form-urlencoded',
-    ]);
-
-    $response = curl_exec($ch);
-    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($status >= 200 && $status < 300) {
-        $data = json_decode($response, true);
-        return $data['url'] ?? null;
-    }
-
-    return null;
-}
