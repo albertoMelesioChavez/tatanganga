@@ -159,7 +159,7 @@ class hook_callbacks {
             . '<div class="suscripcion-banner-icon">🔓</div>'
             . '<div class="suscripcion-banner-text">'
             . '<strong>Desbloquea todo el contenido</strong>'
-            . '<span>Suscríbete por $100 MXN/mes y accede a todas las clases, grabaciones y recursos exclusivos.</span>'
+            . '<span>Suscríbete por $850 MXN/mes y accede a todas las clases, grabaciones y recursos exclusivos.</span>'
             . '</div>'
             . '<a href="' . $payurl->out(false) . '" class="btn suscripcion-banner-btn">Suscribirme ahora</a>'
             . '</div>'
