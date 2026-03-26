@@ -1,5 +1,6 @@
 # Moodle data (never version)
 /moodledata/
+/dataroot/
 
 # Composer / npm
 /vendor/
@@ -14,8 +15,12 @@
 
 # Local config (root only)
 /config.php
+config_copy.php
 
-
+# Test files
+test.php
+test.php.save
+check.php
 
 # Logs & cache
 *.log
