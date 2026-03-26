@@ -244,7 +244,7 @@ class hook_callbacks {
      * @param before_standard_top_of_body_html_generation $hook
      */
     private static function inject_course_nav_buttons(before_standard_top_of_body_html_generation $hook): void {
-        global $DB, $COURSE, $PAGE;
+        global $DB, $COURSE, $PAGE, $USER;
 
         if ($PAGE->user_is_editing() || is_siteadmin() || has_capability('moodle/course:update', \context_system::instance())) {
             return;
@@ -329,7 +329,19 @@ class hook_callbacks {
         if (function_exists('capability_exists') && \capability_exists('local/stripe:issuscriptor')) {
             $hassuscriptorcap = \has_capability('local/stripe:issuscriptor', \context_system::instance());
         }
-        $shouldlock = $hassuscriptorcap ? 'false' : 'true';
+
+        $hassuscriptorrole = false;
+        if (!$hassuscriptorcap && isloggedin() && !isguestuser()) {
+            $suscriptorroleid = $DB->get_field('role', 'id', ['shortname' => 'student_suscriptor']);
+            if ($suscriptorroleid) {
+                $hassuscriptorrole = $DB->record_exists('role_assignments', [
+                    'roleid' => $suscriptorroleid,
+                    'userid' => $USER->id,
+                ]);
+            }
+        }
+
+        $shouldlock = ($hassuscriptorcap || $hassuscriptorrole) ? 'false' : 'true';
 
         $courseid = (int) ($COURSE->id ?? 0);
 
