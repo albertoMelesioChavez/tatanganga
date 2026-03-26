@@ -30,35 +30,35 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Filter out the global community course from course listings.
  *
- * @param array $courses Array of course records.
+ * @param iterable $courses Iterable of course records.
  * @return array Filtered course records.
  */
-function local_calendario_filter_community_course(array $courses): array {
+function local_calendario_filter_community_course(iterable $courses): array {
     $communitycourseid = (int) (get_config('local_calendario', 'communitycourseid') ?: 12);
     $communityshortname = (string) (get_config('local_calendario', 'communityshortname') ?: 'comunidad');
     $communityidnumber = (string) (get_config('local_calendario', 'communityidnumber') ?: '999');
 
-    return array_filter($courses, static function($course) use (
-        $communitycourseid,
-        $communityshortname,
-        $communityidnumber
-    ) {
+    $filteredcourses = [];
+    foreach ($courses as $key => $course) {
         if (!is_object($course)) {
-            return true;
+            $filteredcourses[$key] = $course;
+            continue;
         }
 
         if (isset($course->id) && (int) $course->id === $communitycourseid) {
-            return false;
+            continue;
         }
 
         if (isset($course->shortname) && (string) $course->shortname === $communityshortname) {
-            return false;
+            continue;
         }
 
         if (isset($course->idnumber) && (string) $course->idnumber === $communityidnumber) {
-            return false;
+            continue;
         }
 
-        return true;
-    });
+        $filteredcourses[$key] = $course;
+    }
+
+    return $filteredcourses;
 }
