@@ -4141,6 +4141,14 @@ class core_course_external extends external_api {
                 COURSE_DB_QUERY_LIMIT, [], $hiddencourses);
         }
 
+        $localcalendariolib = $CFG->dirroot . '/local/calendario/lib.php';
+        if (file_exists($localcalendariolib)) {
+            require_once($localcalendariolib);
+            if (function_exists('local_calendario_filter_community_course')) {
+                $courses = local_calendario_filter_community_course($courses);
+            }
+        }
+
         $favouritecourseids = [];
         $ufservice = \core_favourites\service_factory::get_service_for_user_context(\context_user::instance($USER->id));
         $favourites = $ufservice->find_favourites_by_type('core_course', 'courses');

@@ -494,19 +494,9 @@ class hook_callbacks {
      * @param course_list_filter $hook
      */
     public static function filter_community_course(course_list_filter $hook): void {
-        global $DB;
-        
-        $courses = $hook->get_courses();
-        $filtered = [];
-        
-        foreach ($courses as $course) {
-            // Skip community course by shortname.
-            if ($course->shortname === 'comunidad') {
-                continue;
-            }
-            $filtered[] = $course;
+        if (function_exists('local_calendario_filter_community_course')) {
+            $courses = $hook->get_courses();
+            $hook->set_courses(local_calendario_filter_community_course($courses));
         }
-        
-        $hook->set_courses($filtered);
     }
 }
