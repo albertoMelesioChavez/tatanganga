@@ -377,7 +377,7 @@ class hook_callbacks {
      * @param core\hook\before_http_headers $hook
      */
     public static function restrict_activity_access(core\hook\before_http_headers $hook): void {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER;
         
         $script = (string) $hook->get_script();
         if (!empty($CFG->wwwroot) && str_starts_with($script, $CFG->wwwroot)) {
@@ -495,7 +495,13 @@ class hook_callbacks {
             return;
         }
         
-        // Other courses: redirect to subscription page.
+        // Check if user is enrolled in this specific course.
+        $context = context_course::instance($cm->course);
+        if (is_enrolled($context, $USER)) {
+            return;
+        }
+        
+        // Not enrolled: redirect to subscription page.
         $courseurl = new moodle_url('/course/view.php', ['id' => $cm->course]);
         redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/index.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
     }
