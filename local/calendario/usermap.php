@@ -140,21 +140,28 @@ $PAGE->requires->js(new moodle_url('https://unpkg.com/leaflet@1.9.4/dist/leaflet
 
 echo $OUTPUT->header();
 
-echo html_writer::start_div('local-calendario-usermap');
-echo html_writer::tag('p', get_string('usermapintro', 'local_calendario'));
-
 echo '<style>
+#region-main-box {
+    padding: 0 !important;
+}
+#region-main {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.local-calendario-usermap {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 0;
+}
 #usermap {
     height: 80vh;
     min-height: 600px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
+    width: 100%;
 }
 </style>';
 
+echo html_writer::start_div('local-calendario-usermap');
 echo html_writer::div('', '', ['id' => 'usermap']);
-
 echo html_writer::end_div();
 
 $pointsjson = json_encode($points, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
