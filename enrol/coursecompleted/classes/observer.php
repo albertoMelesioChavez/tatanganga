@@ -66,6 +66,24 @@ class observer {
                         \core\task\manager::queue_adhoc_task($adhock);
                     } else {
                         \enrol_get_plugin('coursecompleted')->enrol_user($enrol, $userid);
+                        
+                        // Register lastaccess so course appears in "My courses" when sorted by last accessed.
+                        $lastaccess = new \stdClass();
+                        $lastaccess->userid = $userid;
+                        $lastaccess->courseid = $enrol->courseid;
+                        $lastaccess->timeaccess = time();
+                        
+                        $existing = $DB->get_record('user_lastaccess', [
+                            'userid' => $userid,
+                            'courseid' => $enrol->courseid,
+                        ]);
+                        
+                        if ($existing) {
+                            $lastaccess->id = $existing->id;
+                            $DB->update_record('user_lastaccess', $lastaccess);
+                        } else {
+                            $DB->insert_record('user_lastaccess', $lastaccess);
+                        }
                     }
                 }
             }
