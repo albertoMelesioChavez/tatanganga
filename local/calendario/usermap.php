@@ -174,9 +174,17 @@ $js = <<<JS
 (function() {
   var points = $pointsjson;
 
-  var map = L.map('usermap', { scrollWheelZoom: false }).setView([10, 20], 1.3);
+  var map = L.map('usermap', { 
+    scrollWheelZoom: false,
+    maxBounds: [[-90, -180], [90, 180]],
+    maxBoundsViscosity: 1.0,
+    minZoom: 1
+  }).setView([10, 20], 1.3);
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 8,
+    noWrap: true,
+    bounds: [[-90, -180], [90, 180]],
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
