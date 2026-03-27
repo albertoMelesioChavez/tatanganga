@@ -141,6 +141,11 @@ $PAGE->requires->js(new moodle_url('https://unpkg.com/leaflet@1.9.4/dist/leaflet
 echo $OUTPUT->header();
 
 echo '<style>
+@media (min-width: 768px) {
+    .pagelayout-standard #page.drawers .main-inner {
+        max-width: none !important;
+    }
+}
 .local-calendario-usermap {
     margin-left: -15px;
     margin-right: -15px;
