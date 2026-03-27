@@ -1,6 +1,7 @@
 # Moodle data (never version)
 /moodledata/
 /dataroot/
+dataroot/
 
 # Composer / npm
 /vendor/
@@ -27,6 +28,10 @@ check.php
 /cache/
 /localcache/
 /sessions/
+
+# Backup files
+*.bak
+*.bak.*
 
 # IDE / OS
 .DS_Store
