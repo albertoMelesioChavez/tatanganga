@@ -52,9 +52,9 @@ if (!$canaccess) {
 
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/calendario/usermap.php'));
-$PAGE->set_pagelayout('embedded');
+$PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string('usermap', 'local_calendario'));
-$PAGE->set_heading('');
+$PAGE->set_heading(get_string('usermap', 'local_calendario'));
 
 $cache = cache::make('local_calendario', 'usermap_points');
 $cachekey = 'points_v1';
@@ -140,38 +140,22 @@ $PAGE->requires->js(new moodle_url('https://unpkg.com/leaflet@1.9.4/dist/leaflet
 
 echo $OUTPUT->header();
 
-// Fullscreen map CSS
+echo html_writer::start_div('local-calendario-usermap');
+echo html_writer::tag('p', get_string('usermapintro', 'local_calendario'));
+
 echo '<style>
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-}
-#page {
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-#page-content {
-    height: 100%;
-    padding: 0;
-}
-#region-main {
-    height: 100%;
-    padding: 0;
-}
 #usermap {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
+    height: 80vh;
+    min-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
 }
 </style>';
 
 echo html_writer::div('', '', ['id' => 'usermap']);
+
+echo html_writer::end_div();
 
 $pointsjson = json_encode($points, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
