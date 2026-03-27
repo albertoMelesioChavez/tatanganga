@@ -495,9 +495,15 @@ class hook_callbacks {
             return;
         }
         
-        // Check if user is enrolled in this specific course.
-        $context = context_course::instance($cm->course);
-        if (is_enrolled($context, $USER)) {
+        // Check if user is enrolled in this specific course (direct DB check).
+        $enrolled = $DB->record_exists_sql("
+            SELECT 1
+            FROM {user_enrolments} ue
+            JOIN {enrol} e ON e.id = ue.enrolid
+            WHERE ue.userid = ? AND e.courseid = ? AND ue.status = 0 AND e.status = 0
+        ", [$USER->id, $cm->course]);
+        
+        if ($enrolled) {
             return;
         }
         
