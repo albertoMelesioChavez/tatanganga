@@ -1,0 +1,152 @@
+import $ from 'jquery';
+import Ajax from 'core/ajax';
+import Notification from 'core/notification';
+import ModalFactory from 'core/modal_factory';
+import ModalEvents from 'core/modal_events';
+
+export const init = () => {
+    $(document).on('click', '[data-action="show-user-info"]', function(e) {
+        e.preventDefault();
+        const userid = $(this).data('userid');
+        const username = $(this).data('username');
+        
+        showUserInfo(userid, username);
+    });
+};
+
+const showUserInfo = (userid, username) => {
+    ModalFactory.create({
+        type: ModalFactory.types.DEFAULT,
+        title: M.util.get_string('userinfo_title', 'local_userinfo'),
+        body: '<div class="text-center p-3"><div class="spinner-border" role="status"></div><p class="mt-2">' + 
+              M.util.get_string('loading', 'local_userinfo') + '</p></div>',
+        large: true,
+    }).then(modal => {
+        modal.show();
+        
+        $.ajax({
+            url: M.cfg.wwwroot + '/local/userinfo/ajax.php',
+            method: 'POST',
+            data: {
+                userid: userid,
+                sesskey: M.cfg.sesskey
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    modal.setBody(buildUserInfoHTML(response));
+                } else {
+                    modal.setBody('<div class="alert alert-danger">Error loading user information</div>');
+                }
+            },
+            error: function() {
+                modal.setBody('<div class="alert alert-danger">Error loading user information</div>');
+            }
+        });
+        
+        return modal;
+    }).catch(Notification.exception);
+};
+
+const buildUserInfoHTML = (data) => {
+    let html = '<div class="user-info-modal">';
+    
+    html += '<div class="card mb-3">';
+    html += '<div class="card-header"><h5 class="mb-0">👤 ' + data.user.fullname + '</h5></div>';
+    html += '<div class="card-body">';
+    html += '<p class="mb-1"><strong>Email:</strong> ' + data.user.email + '</p>';
+    html += '<p class="mb-1"><strong>Username:</strong> ' + data.user.username + '</p>';
+    html += '<p class="mb-1"><strong>Email confirmado:</strong> ' + 
+            (data.user.confirmed ? 
+                '<span class="badge bg-success">✓ Sí</span>' : 
+                '<span class="badge bg-danger">✗ No confirmado</span>') + '</p>';
+    html += '<p class="mb-1"><strong>Estado:</strong> ' + 
+            (data.user.suspended ? 
+                '<span class="badge bg-warning">Suspendido</span>' : 
+                '<span class="badge bg-success">Activo</span>') + '</p>';
+    
+    if (data.stripe.customerid) {
+        html += '<p class="mb-0"><strong>Stripe Customer ID:</strong> <code>' + data.stripe.customerid + '</code></p>';
+    }
+    html += '</div></div>';
+    
+    html += '<div class="card mb-3">';
+    html += '<div class="card-header"><h5 class="mb-0">🎭 Roles (' + data.roles.length + ')</h5></div>';
+    html += '<div class="card-body">';
+    
+    if (data.roles.length === 0) {
+        html += '<p class="text-muted mb-0">' + M.util.get_string('noroles', 'local_userinfo') + '</p>';
+    } else {
+        html += '<div class="table-responsive">';
+        html += '<table class="table table-sm table-striped mb-0">';
+        html += '<thead><tr><th>Rol</th><th>Contexto</th></tr></thead>';
+        html += '<tbody>';
+        
+        data.roles.forEach(role => {
+            let badge = '';
+            if (role.shortname === 'student_suscriptor') {
+                badge = ' <span class="badge bg-success">Premium</span>';
+            } else if (role.shortname === 'manager' || role.shortname === 'coursecreator') {
+                badge = ' <span class="badge bg-primary">Admin</span>';
+            }
+            
+            html += '<tr>';
+            html += '<td><strong>' + role.name + '</strong>' + badge + '<br><small class="text-muted">' + role.shortname + '</small></td>';
+            html += '<td>' + role.context + '</td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table>';
+        html += '</div>';
+    }
+    html += '</div></div>';
+    
+    html += '<div class="card">';
+    html += '<div class="card-header"><h5 class="mb-0">📚 Cursos Inscritos (' + data.courses.length + ')</h5></div>';
+    html += '<div class="card-body">';
+    
+    if (data.courses.length === 0) {
+        html += '<p class="text-muted mb-0">' + M.util.get_string('nocourses', 'local_userinfo') + '</p>';
+    } else {
+        html += '<div class="table-responsive">';
+        html += '<table class="table table-sm table-striped mb-0">';
+        html += '<thead><tr><th>Curso</th><th>Estado</th></tr></thead>';
+        html += '<tbody>';
+        
+        data.courses.forEach(course => {
+            let statusBadge = '';
+            switch(course.status) {
+                case 'active':
+                    statusBadge = '<span class="badge bg-success">Activo</span>';
+                    break;
+                case 'suspended':
+                    statusBadge = '<span class="badge bg-warning">Suspendido</span>';
+                    break;
+                case 'expired':
+                    statusBadge = '<span class="badge bg-danger">Expirado</span>';
+                    break;
+                case 'notstarted':
+                    statusBadge = '<span class="badge bg-info">No iniciado</span>';
+                    break;
+            }
+            
+            html += '<tr>';
+            html += '<td><a href="' + course.url + '" target="_blank"><strong>' + course.fullname + '</strong></a><br>';
+            html += '<small class="text-muted">' + course.shortname + '</small></td>';
+            html += '<td>' + statusBadge;
+            if (!course.visible) {
+                html += ' <span class="badge bg-secondary">Oculto</span>';
+            }
+            html += '</td>';
+            html += '</tr>';
+        });
+        
+        html += '</tbody></table>';
+        html += '</div>';
+    }
+    html += '</div></div>';
+    
+    html += '</div>';
+    
+    return html;
+};
