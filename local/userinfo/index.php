@@ -73,6 +73,10 @@ if (empty($users)) {
         
         // User info
         echo '<td>';
+        $user->firstnamephonetic = '';
+        $user->lastnamephonetic = '';
+        $user->middlename = '';
+        $user->alternatename = '';
         echo '<strong>' . fullname($user) . '</strong><br>';
         echo '<small class="text-muted">' . s($user->username) . '</small>';
         echo '</td>';
@@ -97,7 +101,7 @@ if (empty($users)) {
         // Roles
         echo '<td>';
         $roles = $DB->get_records_sql("
-            SELECT DISTINCT r.id, r.shortname, r.name, ctx.contextlevel
+            SELECT DISTINCT r.id as roleid, r.shortname, r.name, ctx.contextlevel
             FROM {role} r
             JOIN {role_assignments} ra ON ra.roleid = r.id
             JOIN {context} ctx ON ctx.id = ra.contextid
