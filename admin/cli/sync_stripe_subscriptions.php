@@ -60,19 +60,37 @@ require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
 \Stripe\Stripe::setApiKey($secret_key);
 
 try {
-    // Fetch all active subscriptions
-    $subscriptions = \Stripe\Subscription::all([
-        'status' => 'active',
-        'limit' => 100,
-    ]);
+    // Fetch all active subscriptions with pagination
+    $all_subscriptions = [];
+    $has_more = true;
+    $starting_after = null;
     
-    echo "Found " . count($subscriptions->data) . " active subscriptions\n\n";
+    while ($has_more) {
+        $params = [
+            'status' => 'active',
+            'limit' => 100,
+        ];
+        
+        if ($starting_after) {
+            $params['starting_after'] = $starting_after;
+        }
+        
+        $subscriptions = \Stripe\Subscription::all($params);
+        $all_subscriptions = array_merge($all_subscriptions, $subscriptions->data);
+        
+        $has_more = $subscriptions->has_more;
+        if ($has_more && !empty($subscriptions->data)) {
+            $starting_after = end($subscriptions->data)->id;
+        }
+    }
+    
+    echo "Found " . count($all_subscriptions) . " active subscriptions\n\n";
     
     $synced = 0;
     $skipped = 0;
     $errors = 0;
     
-    foreach ($subscriptions->data as $subscription) {
+    foreach ($all_subscriptions as $subscription) {
         // Get customer details
         $customer = \Stripe\Customer::retrieve($subscription->customer);
         $email = $customer->email;
@@ -139,7 +157,7 @@ try {
     }
     
     echo "\n=== SUMMARY ===\n";
-    echo "Total subscriptions: " . count($subscriptions->data) . "\n";
+    echo "Total subscriptions: " . count($all_subscriptions) . "\n";
     echo "Synced: $synced\n";
     echo "Already synced: $skipped\n";
     echo "Errors: $errors\n";
