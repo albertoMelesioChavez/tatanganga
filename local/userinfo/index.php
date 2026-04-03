@@ -100,14 +100,24 @@ if (empty($users)) {
         
         // Roles
         echo '<td>';
-        $roles = $DB->get_records_sql("
-            SELECT DISTINCT r.id as roleid, r.shortname, r.name, ctx.contextlevel
+        $rolesdata = $DB->get_records_sql("
+            SELECT CONCAT(r.id, '_', ctx.id) as uniqueid, r.shortname, r.name, ctx.contextlevel
             FROM {role} r
             JOIN {role_assignments} ra ON ra.roleid = r.id
             JOIN {context} ctx ON ctx.id = ra.contextid
             WHERE ra.userid = :userid
             ORDER BY ctx.contextlevel, r.sortorder
         ", ['userid' => $user->id]);
+        
+        // Remove duplicates by shortname
+        $roles = [];
+        $seen = [];
+        foreach ($rolesdata as $role) {
+            if (!isset($seen[$role->shortname])) {
+                $roles[] = $role;
+                $seen[$role->shortname] = true;
+            }
+        }
         
         if (empty($roles)) {
             echo '<span class="text-muted">Sin roles</span>';
