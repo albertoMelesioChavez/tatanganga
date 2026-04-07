@@ -24,7 +24,7 @@ $plan = optional_param('plan', 'mxn_monthly', PARAM_ALPHA);
 // Define available plans with their Stripe Price IDs
 $plans = [
     'mxn_monthly' => 'price_1TAfC3FQLKnVWYfjNXKRAv5v', // 850 MXN/month
-    'mxn_yearly' => 'price_PENDING', // 8500 MXN/year - TO BE CREATED
+    'mxn_yearly' => 'price_1TJhT2FQLKnVWYfjkAtdw6An', // 8500 MXN/year
     'usd_monthly' => 'price_1TCvJGFQLKnVWYfjxWk8uX7H', // 48 USD/month
     'usd_yearly' => 'price_1TCvJGFQLKnVWYfjyJAIVVhw', // 500 USD/year
 ];
@@ -35,10 +35,6 @@ if (!isset($plans[$plan])) {
 }
 
 $priceid = $plans[$plan];
-
-if ($priceid === 'price_PENDING') {
-    throw new moodle_exception('error', 'local_stripe', '', null, 'Este plan aún no está disponible. Por favor contacta al administrador.');
-}
 
 // Get Stripe configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
