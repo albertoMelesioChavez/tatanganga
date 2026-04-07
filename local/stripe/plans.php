@@ -159,7 +159,7 @@ echo $OUTPUT->header();
                 <li>Grabaciones de clases en vivo</li>
                 <li>Recursos descargables</li>
                 <li>Acceso a la comunidad</li>
-                <li>Cancela cuando quieras</li>
+                <li>Soporte prioritario</li>
             </ul>
             <a href="<?php echo new moodle_url('/local/stripe/subscribe.php', ['plan' => 'mxn_monthly']); ?>" class="plan-btn">
                 Suscribirme
@@ -175,10 +175,10 @@ echo $OUTPUT->header();
             </div>
             <div class="plan-savings">Ahorra $1,700 MXN</div>
             <ul class="plan-features">
-                <li>Todo lo del plan mensual</li>
-                <li>2 meses gratis</li>
-                <li>Acceso prioritario a eventos</li>
-                <li>Certificados de finalización</li>
+                <li>Acceso completo a todos los cursos</li>
+                <li>Grabaciones de clases en vivo</li>
+                <li>Recursos descargables</li>
+                <li>Acceso a la comunidad</li>
                 <li>Soporte prioritario</li>
             </ul>
             <a href="<?php echo new moodle_url('/local/stripe/subscribe.php', ['plan' => 'mxn_yearly']); ?>" class="plan-btn">
@@ -198,7 +198,7 @@ echo $OUTPUT->header();
                 <li>Grabaciones de clases en vivo</li>
                 <li>Recursos descargables</li>
                 <li>Acceso a la comunidad</li>
-                <li>Pago internacional</li>
+                <li>Soporte prioritario</li>
             </ul>
             <a href="<?php echo new moodle_url('/local/stripe/subscribe.php', ['plan' => 'usd_monthly']); ?>" class="plan-btn">
                 Suscribirme
@@ -214,10 +214,10 @@ echo $OUTPUT->header();
             </div>
             <div class="plan-savings">Ahorra $76 USD</div>
             <ul class="plan-features">
-                <li>Todo lo del plan mensual</li>
-                <li>2 meses gratis</li>
-                <li>Acceso prioritario a eventos</li>
-                <li>Certificados de finalización</li>
+                <li>Acceso completo a todos los cursos</li>
+                <li>Grabaciones de clases en vivo</li>
+                <li>Recursos descargables</li>
+                <li>Acceso a la comunidad</li>
                 <li>Soporte prioritario</li>
             </ul>
             <a href="<?php echo new moodle_url('/local/stripe/subscribe.php', ['plan' => 'usd_yearly']); ?>" class="plan-btn">
