@@ -35,15 +35,46 @@ $data = $event['data']['object'] ?? [];
 
 switch ($type) {
     case 'checkout.session.completed':
-        $userid = (int)($data['client_reference_id'] ?? 0);
-        if (!$userid && !empty($data['metadata']['userid'])) {
+        $customerid = $data['customer'] ?? null;
+        $userid = 0;
+        
+        // Try to get userid from client_reference_id or metadata
+        if (!empty($data['client_reference_id'])) {
+            $userid = (int)$data['client_reference_id'];
+        } elseif (!empty($data['metadata']['userid'])) {
             $userid = (int)$data['metadata']['userid'];
         }
+        
+        // If no userid, try to find user by customer email
+        if (!$userid && $customerid) {
+            require_once(__DIR__ . '/vendor/autoload.php');
+            $secretkey = get_config('local_stripe', 'secretkey');
+            if ($secretkey) {
+                \Stripe\Stripe::setApiKey($secretkey);
+                try {
+                    $customer = \Stripe\Customer::retrieve($customerid);
+                    if (!empty($customer->email)) {
+                        $user = $DB->get_record('user', ['email' => $customer->email, 'deleted' => 0]);
+                        if ($user) {
+                            $userid = $user->id;
+                            error_log("Stripe webhook: Found user by email: {$customer->email} (ID: {$userid})");
+                        } else {
+                            error_log("Stripe webhook: No user found with email: {$customer->email}");
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log("Stripe webhook: Error retrieving customer: " . $e->getMessage());
+                }
+            }
+        }
+        
         if ($userid > 0) {
             local_stripe_assign_suscriptor_role($userid);
-        }
-        if (!empty($data['customer']) && $userid > 0) {
-            local_stripe_store_customer_id($userid, $data['customer']);
+            if ($customerid) {
+                local_stripe_store_customer_id($userid, $customerid);
+            }
+        } else {
+            error_log("Stripe webhook: Could not determine userid for checkout session");
         }
         break;
 
