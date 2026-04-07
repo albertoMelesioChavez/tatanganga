@@ -27,37 +27,50 @@ if (empty($publishablekey) || empty($secretkey) || empty($priceid)) {
     print_error('Stripe no está configurado correctamente. Contacta al administrador.');
 }
 
-// Initialize Stripe
-require_once(__DIR__ . '/vendor/autoload.php');
-\Stripe\Stripe::setApiKey($secretkey);
-
-// Create checkout session
+// Create checkout session using Stripe API directly (no library needed)
 try {
-    $session = \Stripe\Checkout\Session::create([
+    // Prepare nested arrays for line_items and metadata
+    $postdata = [
         'client_reference_id' => (string)$USER->id,
         'customer_email' => $USER->email,
-        'line_items' => [[
-            'price' => $priceid,
-            'quantity' => 1,
-        ]],
+        'line_items[0][price]' => $priceid,
+        'line_items[0][quantity]' => 1,
         'mode' => 'subscription',
         'success_url' => $CFG->wwwroot . '/local/stripe/success.php?session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => $CFG->wwwroot . '/local/stripe/cancel.php',
-        'metadata' => [
-            'userid' => $USER->id,
-            'username' => $USER->username,
-            'email' => $USER->email,
-        ],
-        'subscription_data' => [
-            'metadata' => [
-                'moodle_userid' => $USER->id,
-                'moodle_username' => $USER->username,
-            ],
-        ],
+        'metadata[userid]' => $USER->id,
+        'metadata[username]' => $USER->username,
+        'metadata[email]' => $USER->email,
+        'subscription_data[metadata][moodle_userid]' => $USER->id,
+        'subscription_data[metadata][moodle_username]' => $USER->username,
+    ];
+    
+    $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $secretkey,
     ]);
     
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpcode !== 200 && $httpcode !== 201) {
+        $error = json_decode($response, true);
+        $errormsg = isset($error['error']['message']) ? $error['error']['message'] : 'Error creating checkout session';
+        throw new Exception($errormsg);
+    }
+    
+    $session = json_decode($response, true);
+    
+    if (empty($session['url'])) {
+        throw new Exception('No checkout URL returned from Stripe');
+    }
+    
     // Redirect to Stripe Checkout
-    redirect($session->url);
+    redirect($session['url']);
     
 } catch (Exception $e) {
     error_log('Stripe checkout error: ' . $e->getMessage());
