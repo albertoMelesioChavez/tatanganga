@@ -18,12 +18,33 @@ if ($has_subscription) {
     redirect(new moodle_url('/'), 'Ya tienes una suscripción activa', null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
+// Get plan parameter
+$plan = optional_param('plan', 'mxn_monthly', PARAM_ALPHA);
+
+// Define available plans with their Stripe Price IDs
+$plans = [
+    'mxn_monthly' => 'price_1TAfC3FQLKnVWYfjNXKRAv5v', // 850 MXN/month
+    'mxn_yearly' => 'price_PENDING', // 8500 MXN/year - TO BE CREATED
+    'usd_monthly' => 'price_1TCvJGFQLKnVWYfjxWk8uX7H', // 48 USD/month
+    'usd_yearly' => 'price_1TCvJGFQLKnVWYfjyJAIVVhw', // 500 USD/year
+];
+
+// Validate plan
+if (!isset($plans[$plan])) {
+    throw new moodle_exception('error', 'local_stripe', '', null, 'Plan de suscripción inválido.');
+}
+
+$priceid = $plans[$plan];
+
+if ($priceid === 'price_PENDING') {
+    throw new moodle_exception('error', 'local_stripe', '', null, 'Este plan aún no está disponible. Por favor contacta al administrador.');
+}
+
 // Get Stripe configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
 $secretkey = get_config('local_stripe', 'secretkey');
-$priceid = get_config('local_stripe', 'priceid');
 
-if (empty($publishablekey) || empty($secretkey) || empty($priceid)) {
+if (empty($publishablekey) || empty($secretkey)) {
     throw new moodle_exception('error', 'local_stripe', '', null, 'Stripe no está configurado correctamente. Contacta al administrador.');
 }
 

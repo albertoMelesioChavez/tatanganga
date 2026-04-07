@@ -151,8 +151,8 @@ class hook_callbacks {
             }
         }
 
-        // Dynamic Stripe checkout with client_reference_id.
-        $payurl = new moodle_url('/local/stripe/subscribe.php');
+        // Redirect to plans page for plan selection.
+        $payurl = new moodle_url('/local/stripe/plans.php');
 
         $html = '<div class="suscripcion-banner" id="suscripcion-banner" style="display:none">'
             . '<div class="suscripcion-banner-content">'
