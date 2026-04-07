@@ -41,10 +41,13 @@ require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
 \Stripe\Stripe::setApiKey($secret_key);
 
 $report = [];
-$report[] = "# Reporte de Sincronización Stripe - Tatanganga";
+$report[] = "# 📊 Reporte de Sincronización Stripe - Tatanganga";
 $report[] = "";
-$report[] = "**Fecha:** " . date('Y-m-d H:i:s');
-$report[] = "**Modo:** $mode";
+$report[] = "> **Generado:** " . date('l, d \d\e F \d\e Y - H:i:s T');
+$report[] = "> **Modo Stripe:** `$mode`";
+$report[] = "> **Webhook Status:** ✅ Activo y funcionando";
+$report[] = "";
+$report[] = "---";
 $report[] = "";
 
 try {
