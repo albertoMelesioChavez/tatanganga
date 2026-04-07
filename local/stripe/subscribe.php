@@ -24,7 +24,7 @@ $secretkey = get_config('local_stripe', 'secretkey');
 $priceid = get_config('local_stripe', 'priceid');
 
 if (empty($publishablekey) || empty($secretkey) || empty($priceid)) {
-    print_error('Stripe no está configurado correctamente. Contacta al administrador.');
+    throw new moodle_exception('error', 'local_stripe', '', null, 'Stripe no está configurado correctamente. Contacta al administrador.');
 }
 
 // Create checkout session using Stripe API directly (no library needed)
@@ -74,5 +74,5 @@ try {
     
 } catch (Exception $e) {
     error_log('Stripe checkout error: ' . $e->getMessage());
-    print_error('Error al crear la sesión de pago: ' . $e->getMessage());
+    throw new moodle_exception('error', 'local_stripe', '', null, 'Error al crear la sesión de pago: ' . $e->getMessage());
 }
