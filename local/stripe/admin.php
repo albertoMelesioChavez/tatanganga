@@ -3,68 +3,17 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once(__DIR__ . '/lib.php');
 
-admin_externalpage_setup('local_stripe_admin');
-
 $action = optional_param('action', '', PARAM_ALPHA);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
-$PAGE->set_url(new moodle_url('/local/stripe/admin.php'));
-$PAGE->set_title(get_string('pluginname', 'local_stripe'));
-$PAGE->set_heading(get_string('pluginname', 'local_stripe'));
-
-// Handle actions
-if ($action === 'download_report' && confirm_sesskey()) {
-    require_once(__DIR__ . '/vendor/autoload.php');
-    
-    $secret_key = get_config('local_stripe', 'secretkey');
-    if (empty($secret_key)) {
-        print_error('Stripe secret key not configured');
-    }
-    
-    \Stripe\Stripe::setApiKey($secret_key);
-    $mode = (strpos($secret_key, 'sk_test_') === 0) ? 'TEST' : 'LIVE';
-    
-    // Generate report
-    $report = generate_stripe_report_content();
-    
-    // Send file
-    header('Content-Type: text/markdown');
-    header('Content-Disposition: attachment; filename="stripe_report_' . date('Y-m-d_His') . '.md"');
-    echo $report;
-    exit;
-}
-
-if ($action === 'sync_now' && confirm_sesskey()) {
-    if ($confirm) {
-        // Run sync
-        require_once(__DIR__ . '/vendor/autoload.php');
-        $secret_key = get_config('local_stripe', 'secretkey');
-        \Stripe\Stripe::setApiKey($secret_key);
-        
-        $result = sync_stripe_subscriptions_fast();
-        redirect(new moodle_url('/local/stripe/admin.php'), 
-                 "Sincronizados: {$result['synced']}, Ya sincronizados: {$result['already_synced']}, Errores: {$result['errors']}", 
-                 null, 
-                 \core\output\notification::NOTIFY_SUCCESS);
-    } else {
-        // Show confirmation
-        echo $OUTPUT->header();
-        echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
-        
-        $continue = new moodle_url('/local/stripe/admin.php', ['action' => 'sync_now', 'confirm' => 1, 'sesskey' => sesskey()]);
-        $cancel = new moodle_url('/local/stripe/admin.php');
-        
-        echo $OUTPUT->confirm('¿Estás seguro de que quieres sincronizar todos los usuarios con suscripciones activas de Stripe?', $continue, $cancel);
-        echo $OUTPUT->footer();
-        exit;
-    }
-}
-
+// Handle switch_mode BEFORE any output
 if ($action === 'switch_mode' && confirm_sesskey()) {
     $newmode = required_param('mode', PARAM_ALPHA);
     
     if ($newmode !== 'test' && $newmode !== 'live') {
-        print_error('Invalid mode');
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Invalid mode']);
+        exit;
     }
     
     // Switch mode
@@ -130,6 +79,60 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
         // Return JSON for AJAX (cache will be purged on page reload)
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => 'Cambiado a modo LIVE exitosamente']);
+        exit;
+    }
+}
+
+admin_externalpage_setup('local_stripe_admin');
+
+$PAGE->set_url(new moodle_url('/local/stripe/admin.php'));
+$PAGE->set_title(get_string('pluginname', 'local_stripe'));
+$PAGE->set_heading(get_string('pluginname', 'local_stripe'));
+
+// Handle actions
+if ($action === 'download_report' && confirm_sesskey()) {
+    require_once(__DIR__ . '/vendor/autoload.php');
+    
+    $secret_key = get_config('local_stripe', 'secretkey');
+    if (empty($secret_key)) {
+        print_error('Stripe secret key not configured');
+    }
+    
+    \Stripe\Stripe::setApiKey($secret_key);
+    $mode = (strpos($secret_key, 'sk_test_') === 0) ? 'TEST' : 'LIVE';
+    
+    // Generate report
+    $report = generate_stripe_report_content();
+    
+    // Send file
+    header('Content-Type: text/markdown');
+    header('Content-Disposition: attachment; filename="stripe_report_' . date('Y-m-d_His') . '.md"');
+    echo $report;
+    exit;
+}
+
+if ($action === 'sync_now' && confirm_sesskey()) {
+    if ($confirm) {
+        // Run sync
+        require_once(__DIR__ . '/vendor/autoload.php');
+        $secret_key = get_config('local_stripe', 'secretkey');
+        \Stripe\Stripe::setApiKey($secret_key);
+        
+        $result = sync_stripe_subscriptions_fast();
+        redirect(new moodle_url('/local/stripe/admin.php'), 
+                 "Sincronizados: {$result['synced']}, Ya sincronizados: {$result['already_synced']}, Errores: {$result['errors']}", 
+                 null, 
+                 \core\output\notification::NOTIFY_SUCCESS);
+    } else {
+        // Show confirmation
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
+        
+        $continue = new moodle_url('/local/stripe/admin.php', ['action' => 'sync_now', 'confirm' => 1, 'sesskey' => sesskey()]);
+        $cancel = new moodle_url('/local/stripe/admin.php');
+        
+        echo $OUTPUT->confirm('¿Estás seguro de que quieres sincronizar todos los usuarios con suscripciones activas de Stripe?', $continue, $cancel);
+        echo $OUTPUT->footer();
         exit;
     }
 }
