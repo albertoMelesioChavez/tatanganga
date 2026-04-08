@@ -1,13 +1,18 @@
 <?php
 // Minimal endpoint for switching Stripe mode - returns JSON only
-define('CLI_SCRIPT', false);
 define('AJAX_SCRIPT', true);
-define('NO_MOODLE_COOKIES', true);
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 
-require_login();
+// Validate session and admin capability
+if (!isloggedin() || isguestuser()) {
+    header('Content-Type: application/json');
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Not logged in']);
+    exit;
+}
+
 require_sesskey();
 
 $newmode = required_param('mode', PARAM_ALPHA);
