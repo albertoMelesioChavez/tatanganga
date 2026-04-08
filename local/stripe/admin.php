@@ -97,9 +97,7 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
             set_config('webhooksecret', $test_webhook, 'local_stripe');
         }
         
-        purge_all_caches();
-        
-        // Return JSON for AJAX, redirect for normal requests
+        // Return JSON for AJAX (cache will be purged on page reload)
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => 'Cambiado a modo TEST exitosamente']);
         exit;
@@ -129,9 +127,7 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
             set_config('webhooksecret', $live_webhook, 'local_stripe');
         }
         
-        purge_all_caches();
-        
-        // Return JSON for AJAX
+        // Return JSON for AJAX (cache will be purged on page reload)
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'message' => 'Cambiado a modo LIVE exitosamente']);
         exit;
