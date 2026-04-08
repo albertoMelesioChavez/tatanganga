@@ -21,21 +21,6 @@ if ($has_subscription) {
 // Get plan parameter
 $plan = optional_param('plan', 'mxn_monthly', PARAM_ALPHANUMEXT);
 
-// Define available plans with their Stripe Price IDs
-$plans = [
-    'mxn_monthly' => 'price_1TAfC3FQLKnVWYfjNXKRAv5v', // 850 MXN/month
-    'mxn_yearly' => 'price_1TJhT2FQLKnVWYfjkAtdw6An', // 8500 MXN/year
-    'usd_monthly' => 'price_1TCvJGFQLKnVWYfjxWk8uX7H', // 48 USD/month
-    'usd_yearly' => 'price_1TCvJGFQLKnVWYfjyJAIVVhw', // 500 USD/year
-];
-
-// Validate plan
-if (!isset($plans[$plan])) {
-    throw new moodle_exception('error', 'local_stripe', '', null, 'Plan de suscripción inválido.');
-}
-
-$priceid = $plans[$plan];
-
 // Get Stripe configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
 $secretkey = get_config('local_stripe', 'secretkey');
@@ -43,6 +28,36 @@ $secretkey = get_config('local_stripe', 'secretkey');
 if (empty($publishablekey) || empty($secretkey)) {
     throw new moodle_exception('error', 'local_stripe', '', null, 'Stripe no está configurado correctamente. Contacta al administrador.');
 }
+
+// Determine if we're in TEST or LIVE mode
+$is_test_mode = (strpos($secretkey, 'sk_test_') === 0);
+
+// Define available plans with their Stripe Price IDs
+// LIVE mode Price IDs
+$plans_live = [
+    'mxn_monthly' => 'price_1TAfC3FQLKnVWYfjNXKRAv5v', // 850 MXN/month
+    'mxn_yearly' => 'price_1TJhT2FQLKnVWYfjkAtdw6An', // 8500 MXN/year
+    'usd_monthly' => 'price_1TCvJGFQLKnVWYfjxWk8uX7H', // 48 USD/month
+    'usd_yearly' => 'price_1TCvJGFQLKnVWYfjyJAIVVhw', // 500 USD/year
+];
+
+// TEST mode Price IDs (need to be created in Stripe TEST mode)
+$plans_test = [
+    'mxn_monthly' => 'price_TEST_mxn_monthly', // 850 MXN/month TEST
+    'mxn_yearly' => 'price_TEST_mxn_yearly',   // 8500 MXN/year TEST
+    'usd_monthly' => 'price_TEST_usd_monthly', // 48 USD/month TEST
+    'usd_yearly' => 'price_TEST_usd_yearly',   // 500 USD/year TEST
+];
+
+// Select the appropriate plan set based on mode
+$plans = $is_test_mode ? $plans_test : $plans_live;
+
+// Validate plan
+if (!isset($plans[$plan])) {
+    throw new moodle_exception('error', 'local_stripe', '', null, 'Plan de suscripción inválido.');
+}
+
+$priceid = $plans[$plan];
 
 // Create checkout session using Stripe API directly (no library needed)
 try {
