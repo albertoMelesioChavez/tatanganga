@@ -19,6 +19,7 @@ namespace local_calendario;
 use core\hook\navigation\secondary_extend;
 use core\hook\navigation\primary_extend;
 use core\hook\output\before_standard_top_of_body_html_generation;
+use core\hook\output\before_footer_html_generation;
 use core\hook\before_http_headers;
 use core\hook\course\course_list_filter;
 use navigation_node;
@@ -522,5 +523,33 @@ class hook_callbacks {
             $courses = $hook->get_courses();
             $hook->set_courses(local_calendario_filter_community_course($courses));
         }
+    }
+
+    /**
+     * Inject maintenance banner when Stripe is in test mode.
+     *
+     * @param before_footer_html_generation $hook
+     */
+    public static function inject_maintenance_banner(before_footer_html_generation $hook): void {
+        // Check if Stripe is in test mode
+        $publishablekey = get_config('local_stripe', 'publishablekey');
+        
+        if (empty($publishablekey) || strpos($publishablekey, 'pk_test_') !== 0) {
+            return; // Not in test mode
+        }
+        
+        $html = '<div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; 
+                    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); 
+                    color: white; padding: 15px 20px; text-align: center; 
+                    box-shadow: 0 -4px 20px rgba(0,0,0,0.3); border-top: 3px solid #ffd700;">
+                    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                        <span style="font-size: 24px;">⚠️</span>
+                        <strong style="font-size: 18px;">MODO DE MANTENIMIENTO</strong>
+                        <span style="font-size: 16px;">La plataforma está en modo de prueba. Los pagos no son reales.</span>
+                        <span style="font-size: 24px;">⚠️</span>
+                    </div>
+                </div>';
+        
+        $hook->add_html($html);
     }
 }

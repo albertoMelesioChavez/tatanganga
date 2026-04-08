@@ -45,4 +45,8 @@ $callbacks = [
         'hook' => core\hook\course\course_list_filter::class,
         'callback' => 'local_calendario\hook_callbacks::filter_community_course',
     ],
+    [
+        'hook' => core\hook\output\before_footer_html_generation::class,
+        'callback' => 'local_calendario\hook_callbacks::inject_maintenance_banner',
+    ],
 ];
