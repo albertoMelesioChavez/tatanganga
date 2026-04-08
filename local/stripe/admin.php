@@ -78,10 +78,9 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
         $test_webhook = get_config('local_stripe', 'webhooksecret_test');
         
         if (empty($test_pub) || empty($test_sec)) {
-            redirect(new moodle_url('/local/stripe/admin.php'), 
-                     'No se encontraron las claves de TEST. Por favor configúralas primero.', 
-                     null, 
-                     \core\output\notification::NOTIFY_ERROR);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'No se encontraron las claves de TEST']);
+            exit;
         }
         
         // Backup current (LIVE) keys
@@ -100,10 +99,10 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
         
         purge_all_caches();
         
-        redirect(new moodle_url('/local/stripe/admin.php'), 
-                 'Cambiado a modo TEST exitosamente', 
-                 null, 
-                 \core\output\notification::NOTIFY_SUCCESS);
+        // Return JSON for AJAX, redirect for normal requests
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Cambiado a modo TEST exitosamente']);
+        exit;
         
     } else {
         $live_pub = get_config('local_stripe', 'publishablekey_live');
@@ -111,10 +110,9 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
         $live_webhook = get_config('local_stripe', 'webhooksecret_live');
         
         if (empty($live_pub) || empty($live_sec)) {
-            redirect(new moodle_url('/local/stripe/admin.php'), 
-                     'No se encontraron las claves de LIVE. Por favor configúralas primero.', 
-                     null, 
-                     \core\output\notification::NOTIFY_ERROR);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'No se encontraron las claves de LIVE']);
+            exit;
         }
         
         // Backup current (TEST) keys
@@ -133,10 +131,10 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
         
         purge_all_caches();
         
-        redirect(new moodle_url('/local/stripe/admin.php'), 
-                 'Cambiado a modo LIVE exitosamente', 
-                 null, 
-                 \core\output\notification::NOTIFY_SUCCESS);
+        // Return JSON for AJAX
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Cambiado a modo LIVE exitosamente']);
+        exit;
     }
 }
 
@@ -155,6 +153,9 @@ echo <<<HTML
 }
 .custom-control-input:focus ~ .custom-control-label::before {
     box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+}
+.custom-control-label {
+    cursor: pointer;
 }
 .mode-switching-overlay {
     display: none;
