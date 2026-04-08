@@ -34,10 +34,9 @@ echo $OUTPUT->header();
     scroll-behavior: smooth;
 }
 
-.pricing-plans::after {
-    content: "→";
-    position: absolute;
-    right: 10px;
+.scroll-indicator {
+    position: fixed;
+    right: 30px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 32px;
@@ -51,8 +50,19 @@ echo $OUTPUT->header();
     justify-content: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(196, 162, 101, 0.3);
     animation: scrollHint 2s ease-in-out infinite;
+    cursor: pointer;
+    z-index: 1050;
+    transition: all 0.3s ease;
+}
+
+.scroll-indicator:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4), 0 0 0 5px rgba(196, 162, 101, 0.5);
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
     pointer-events: none;
-    z-index: 10;
 }
 
 @keyframes scrollHint {
@@ -285,6 +295,43 @@ echo $OUTPUT->header();
         </p>
     </div>
 </div>
+
+<div class="scroll-indicator" id="scrollIndicator">→</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const plansContainer = document.querySelector('.pricing-plans');
+    const scrollIndicator = document.getElementById('scrollIndicator');
+    
+    if (!plansContainer || !scrollIndicator) return;
+    
+    // Check if scroll is needed
+    function checkScroll() {
+        const hasScroll = plansContainer.scrollWidth > plansContainer.clientWidth;
+        const isAtEnd = plansContainer.scrollLeft + plansContainer.clientWidth >= plansContainer.scrollWidth - 10;
+        
+        if (!hasScroll || isAtEnd) {
+            scrollIndicator.classList.add('hidden');
+        } else {
+            scrollIndicator.classList.remove('hidden');
+        }
+    }
+    
+    // Scroll to next card on click
+    scrollIndicator.addEventListener('click', function() {
+        const cardWidth = plansContainer.querySelector('.pricing-card').offsetWidth;
+        plansContainer.scrollBy({
+            left: cardWidth + 20,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Check scroll on load and scroll events
+    checkScroll();
+    plansContainer.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+});
+</script>
 
 <?php
 
