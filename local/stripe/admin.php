@@ -254,17 +254,14 @@ $sync_status = get_sync_status();
                 
                 <div class="custom-control custom-switch" style="transform: scale(2); margin-right: 30px;">
                     <input type="checkbox" class="custom-control-input" id="stripeMode" 
-                           <?php echo $mode === 'TEST' ? 'checked' : ''; ?>
-                           onchange="window.location.href='<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => $mode === 'TEST' ? 'live' : 'test', 'sesskey' => sesskey()]); ?>'">
+                           <?php echo $mode === 'LIVE' ? 'checked' : ''; ?>
+                           onchange="window.location.href='<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => $mode === 'LIVE' ? 'test' : 'live', 'sesskey' => sesskey()]); ?>'">
                     <label class="custom-control-label" for="stripeMode"></label>
                 </div>
                 
-                <div style="text-align: right; min-width: 100px;">
+                <div style="text-align: right; min-width: 120px;">
                     <div style="font-size: 12px; color: #999; margin-bottom: 3px;">
-                        <?php echo $mode === 'TEST' ? 'LIVE' : 'TEST'; ?>
-                    </div>
-                    <div style="font-size: 10px; color: #999;">
-                        Click para cambiar
+                        Click para modo <?php echo $mode === 'LIVE' ? 'TEST' : 'LIVE'; ?>
                     </div>
                 </div>
             </div>
