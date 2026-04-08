@@ -143,6 +143,17 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
 
+// Add custom CSS for green switch
+echo '<style>
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #4caf50 !important;
+    border-color: #4caf50 !important;
+}
+.custom-control-input:focus ~ .custom-control-label::before {
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+}
+</style>';
+
 // Get current configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
 $secretkey = get_config('local_stripe', 'secretkey');
