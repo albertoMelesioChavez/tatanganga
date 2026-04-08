@@ -19,7 +19,7 @@ if ($has_subscription) {
 }
 
 // Get plan parameter
-$plan = optional_param('plan', 'mxn_monthly', PARAM_ALPHA);
+$plan = optional_param('plan', 'mxn_monthly', PARAM_ALPHANUMEXT);
 
 // Define available plans with their Stripe Price IDs
 $plans = [
