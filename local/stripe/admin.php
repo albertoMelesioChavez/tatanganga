@@ -143,7 +143,7 @@ if ($action === 'switch_mode' && confirm_sesskey()) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
 
-// Add custom CSS for green switch
+// Add custom CSS for green switch and loading overlay
 echo '<style>
 .custom-control-input:checked ~ .custom-control-label::before {
     background-color: #4caf50 !important;
@@ -152,7 +152,45 @@ echo '<style>
 .custom-control-input:focus ~ .custom-control-label::before {
     box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
 }
-</style>';
+.mode-switching-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+.mode-switching-overlay.active {
+    display: flex;
+}
+.mode-switching-message {
+    background: white;
+    padding: 30px 50px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+}
+</style>
+
+<div class="mode-switching-overlay" id="modeSwitchingOverlay">
+    <div class="mode-switching-message">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div><strong>Cambiando modo de Stripe...</strong></div>
+        <div class="text-muted">Por favor espera</div>
+    </div>
+</div>
+
+<script>
+function switchStripeMode(newMode) {
+    document.getElementById("modeSwitchingOverlay").classList.add("active");
+    document.getElementById("stripeMode").disabled = true;
+    window.location.href = "<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'sesskey' => sesskey()]); ?>&mode=" + newMode;
+}
+</script>';
 
 // Get current configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
@@ -266,7 +304,7 @@ $sync_status = get_sync_status();
                 <div class="custom-control custom-switch" style="transform: scale(2); margin-right: 30px;">
                     <input type="checkbox" class="custom-control-input" id="stripeMode" 
                            <?php echo $mode === 'LIVE' ? 'checked' : ''; ?>
-                           onchange="window.location.href='<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => $mode === 'LIVE' ? 'test' : 'live', 'sesskey' => sesskey()]); ?>'">
+                           onchange="switchStripeMode('<?php echo $mode === 'LIVE' ? 'test' : 'live'; ?>')">
                     <label class="custom-control-label" for="stripeMode"></label>
                 </div>
                 
