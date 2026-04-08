@@ -101,7 +101,7 @@ if (empty($users)) {
         // Roles
         echo '<td>';
         $rolesdata = $DB->get_records_sql("
-            SELECT CONCAT(r.id, '_', ctx.id) as uniqueid, r.shortname, r.name, ctx.contextlevel
+            SELECT ra.id as uniqueid, r.shortname, r.name, ctx.contextlevel
             FROM {role} r
             JOIN {role_assignments} ra ON ra.roleid = r.id
             JOIN {context} ctx ON ctx.id = ra.contextid
