@@ -24,32 +24,37 @@ echo $OUTPUT->header();
 
 <style>
 .pricing-plans {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    margin: 40px 0;
-    max-width: 1200px;
+    display: flex;
+    gap: 20px;
+    margin: 40px auto;
+    max-width: 1400px;
+    overflow-x: auto;
+    padding: 10px;
 }
 
 .pricing-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 30px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 30px 20px;
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
+    min-width: 280px;
+    flex: 1;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
 }
 
 .pricing-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border-color: #0f6cbf;
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(212, 175, 55, 0.4);
+    border-color: #ffd700;
 }
 
 .pricing-card.popular {
-    border-color: #0f6cbf;
+    border-color: #ffd700;
     border-width: 3px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
 }
 
 .pricing-card.popular::before {
@@ -58,26 +63,29 @@ echo $OUTPUT->header();
     top: -15px;
     left: 50%;
     transform: translateX(-50%);
-    background: #0f6cbf;
-    color: white;
+    background: linear-gradient(90deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a2e;
     padding: 5px 20px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
 }
 
 .plan-name {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #333;
+    color: #ffd700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .plan-price {
     font-size: 48px;
     font-weight: bold;
-    color: #0f6cbf;
+    color: #d4af37;
     margin: 20px 0;
+    text-shadow: 0 2px 8px rgba(212, 175, 55, 0.5);
 }
 
 .plan-currency {
@@ -87,7 +95,7 @@ echo $OUTPUT->header();
 
 .plan-period {
     font-size: 16px;
-    color: #666;
+    color: #c0c0c0;
     display: block;
     margin-top: 5px;
 }
@@ -101,48 +109,54 @@ echo $OUTPUT->header();
 
 .plan-features li {
     padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    color: #e0e0e0;
 }
 
 .plan-features li:before {
     content: "✓";
-    color: #4caf50;
+    color: #d4af37;
     font-weight: bold;
     margin-right: 10px;
 }
 
 .plan-btn {
     display: inline-block;
-    background: #0f6cbf;
-    color: white;
+    background: linear-gradient(90deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a2e;
     padding: 15px 40px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
 .plan-btn:hover {
-    background: #0a5a9e;
-    color: white;
+    background: linear-gradient(90deg, #ffd700 0%, #d4af37 100%);
+    color: #1a1a2e;
     text-decoration: none;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
 }
 
 .plan-savings {
-    background: #4caf50;
-    color: white;
+    background: linear-gradient(90deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a2e;
     padding: 5px 15px;
     border-radius: 20px;
     font-size: 14px;
     display: inline-block;
     margin-top: 10px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 </style>
 
 <div class="container mt-4">
     <div class="text-center mb-4">
-        <h2>Elige tu plan de suscripción</h2>
-        <p class="lead">Accede a todo el contenido premium de Tatanganga</p>
+        <h2 style="color: #d4af37; text-shadow: 0 2px 8px rgba(212, 175, 55, 0.5); font-weight: bold;">Elige tu plan de suscripción</h2>
+        <p class="lead" style="color: #c0c0c0;">Accede a todo el contenido premium de Tatanganga</p>
     </div>
 
     <div class="pricing-plans">
