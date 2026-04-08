@@ -144,7 +144,11 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
 
 // Add custom CSS for green switch and loading overlay
-echo '<style>
+$baseurl = (new moodle_url('/local/stripe/admin.php'))->out(false);
+$sesskey = sesskey();
+
+echo <<<HTML
+<style>
 .custom-control-input:checked ~ .custom-control-label::before {
     background-color: #4caf50 !important;
     border-color: #4caf50 !important;
@@ -188,10 +192,10 @@ echo '<style>
 function switchStripeMode(newMode) {
     document.getElementById("modeSwitchingOverlay").classList.add("active");
     document.getElementById("stripeMode").disabled = true;
-    var baseUrl = "<?php echo (new moodle_url('/local/stripe/admin.php'))->out(false); ?>";
-    window.location.href = baseUrl + "?action=switch_mode&sesskey=<?php echo sesskey(); ?>&mode=" + newMode;
+    window.location.href = "{$baseurl}?action=switch_mode&sesskey={$sesskey}&mode=" + newMode;
 }
-</script>';
+</script>
+HTML;
 
 // Get current configuration
 $publishablekey = get_config('local_stripe', 'publishablekey');
