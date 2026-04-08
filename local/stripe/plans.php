@@ -30,19 +30,41 @@ echo $OUTPUT->header();
     max-width: 1400px;
     overflow-x: auto;
     padding: 10px;
+    position: relative;
+    scroll-behavior: smooth;
+}
+
+.pricing-plans::after {
+    content: "→";
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    color: #c4a265;
+    opacity: 0.6;
+    animation: scrollHint 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes scrollHint {
+    0%, 100% { opacity: 0.6; transform: translateY(-50%) translateX(0); }
+    50% { opacity: 1; transform: translateY(-50%) translateX(10px); }
 }
 
 .pricing-card {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border: 2px solid #c4a265;
     border-radius: 15px;
-    padding: 30px 20px;
+    padding: 30px 20px 20px;
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
     min-width: 280px;
     flex: 1;
     box-shadow: 0 8px 20px rgba(196, 162, 101, 0.2);
+    display: flex;
+    flex-direction: column;
 }
 
 .pricing-card:hover {
@@ -105,6 +127,7 @@ echo $OUTPUT->header();
     padding: 0;
     margin: 30px 0;
     text-align: left;
+    flex-grow: 1;
 }
 
 .plan-features li {
@@ -130,6 +153,7 @@ echo $OUTPUT->header();
     font-weight: bold;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(196, 162, 101, 0.3);
+    margin-top: auto;
 }
 
 .plan-btn:hover {
