@@ -190,9 +190,33 @@ echo <<<HTML
 
 <script>
 function switchStripeMode(newMode) {
-    document.getElementById("modeSwitchingOverlay").classList.add("active");
-    document.getElementById("stripeMode").disabled = true;
-    window.location.href = "{$baseurl}?action=switch_mode&sesskey={$sesskey}&mode=" + newMode;
+    var overlay = document.getElementById("modeSwitchingOverlay");
+    var switchEl = document.getElementById("stripeMode");
+    
+    overlay.classList.add("active");
+    switchEl.disabled = true;
+    
+    // Use fetch to switch mode without immediate reload
+    fetch("{$baseurl}?action=switch_mode&sesskey={$sesskey}&mode=" + newMode)
+        .then(function(response) {
+            if (response.ok) {
+                // Wait a moment for server to process, then reload
+                setTimeout(function() {
+                    window.location.reload();
+                }, 500);
+            } else {
+                alert("Error al cambiar modo de Stripe");
+                overlay.classList.remove("active");
+                switchEl.disabled = false;
+                switchEl.checked = !switchEl.checked;
+            }
+        })
+        .catch(function(error) {
+            alert("Error al cambiar modo de Stripe");
+            overlay.classList.remove("active");
+            switchEl.disabled = false;
+            switchEl.checked = !switchEl.checked;
+        });
 }
 </script>
 HTML;
