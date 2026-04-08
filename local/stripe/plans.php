@@ -65,6 +65,11 @@ echo $OUTPUT->header();
     pointer-events: none;
 }
 
+.scroll-indicator.left {
+    right: auto;
+    left: 30px;
+}
+
 @keyframes scrollHint {
     0%, 100% { 
         transform: translateY(-50%) translateX(0); 
@@ -296,32 +301,52 @@ echo $OUTPUT->header();
     </div>
 </div>
 
-<div class="scroll-indicator" id="scrollIndicator">→</div>
+<div class="scroll-indicator left hidden" id="scrollIndicatorLeft">←</div>
+<div class="scroll-indicator" id="scrollIndicatorRight">→</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const plansContainer = document.querySelector('.pricing-plans');
-    const scrollIndicator = document.getElementById('scrollIndicator');
+    const scrollIndicatorLeft = document.getElementById('scrollIndicatorLeft');
+    const scrollIndicatorRight = document.getElementById('scrollIndicatorRight');
     
-    if (!plansContainer || !scrollIndicator) return;
+    if (!plansContainer || !scrollIndicatorLeft || !scrollIndicatorRight) return;
     
-    // Check if scroll is needed
+    // Check scroll position and show/hide indicators
     function checkScroll() {
         const hasScroll = plansContainer.scrollWidth > plansContainer.clientWidth;
+        const isAtStart = plansContainer.scrollLeft <= 10;
         const isAtEnd = plansContainer.scrollLeft + plansContainer.clientWidth >= plansContainer.scrollWidth - 10;
         
-        if (!hasScroll || isAtEnd) {
-            scrollIndicator.classList.add('hidden');
+        // Show/hide left indicator
+        if (!hasScroll || isAtStart) {
+            scrollIndicatorLeft.classList.add('hidden');
         } else {
-            scrollIndicator.classList.remove('hidden');
+            scrollIndicatorLeft.classList.remove('hidden');
+        }
+        
+        // Show/hide right indicator
+        if (!hasScroll || isAtEnd) {
+            scrollIndicatorRight.classList.add('hidden');
+        } else {
+            scrollIndicatorRight.classList.remove('hidden');
         }
     }
     
-    // Scroll to next card on click
-    scrollIndicator.addEventListener('click', function() {
+    // Scroll to next card on right click
+    scrollIndicatorRight.addEventListener('click', function() {
         const cardWidth = plansContainer.querySelector('.pricing-card').offsetWidth;
         plansContainer.scrollBy({
             left: cardWidth + 20,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Scroll to previous card on left click
+    scrollIndicatorLeft.addEventListener('click', function() {
+        const cardWidth = plansContainer.querySelector('.pricing-card').offsetWidth;
+        plansContainer.scrollBy({
+            left: -(cardWidth + 20),
             behavior: 'smooth'
         });
     });
