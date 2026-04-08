@@ -188,7 +188,8 @@ echo '<style>
 function switchStripeMode(newMode) {
     document.getElementById("modeSwitchingOverlay").classList.add("active");
     document.getElementById("stripeMode").disabled = true;
-    window.location.href = "<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'sesskey' => sesskey()]); ?>&mode=" + newMode;
+    var baseUrl = "<?php echo (new moodle_url('/local/stripe/admin.php'))->out(false); ?>";
+    window.location.href = baseUrl + "?action=switch_mode&sesskey=<?php echo sesskey(); ?>&mode=" + newMode;
 }
 </script>';
 
