@@ -37,19 +37,33 @@ echo $OUTPUT->header();
 .pricing-plans::after {
     content: "→";
     position: absolute;
-    right: -10px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 48px;
+    font-size: 32px;
     color: #c4a265;
-    opacity: 0.6;
+    background: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(196, 162, 101, 0.3);
     animation: scrollHint 2s ease-in-out infinite;
     pointer-events: none;
+    z-index: 10;
 }
 
 @keyframes scrollHint {
-    0%, 100% { opacity: 0.6; transform: translateY(-50%) translateX(0); }
-    50% { opacity: 1; transform: translateY(-50%) translateX(10px); }
+    0%, 100% { 
+        transform: translateY(-50%) translateX(0); 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(196, 162, 101, 0.3);
+    }
+    50% { 
+        transform: translateY(-50%) translateX(10px); 
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4), 0 0 0 5px rgba(196, 162, 101, 0.5);
+    }
 }
 
 .pricing-card {
