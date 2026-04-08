@@ -229,21 +229,44 @@ $sync_status = get_sync_status();
             
             <hr>
             
-            <h4>Cambiar Modo</h4>
-            <div class="btn-group" role="group">
-                <?php if ($mode !== 'TEST'): ?>
-                <a href="<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => 'test', 'sesskey' => sesskey()]); ?>" 
-                   class="btn btn-warning">
-                    <i class="fa fa-flask"></i> Cambiar a TEST
-                </a>
-                <?php endif; ?>
+            <h4>Modo de Stripe</h4>
+            <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                <div style="flex: 1;">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
+                        <?php if ($mode === 'LIVE'): ?>
+                            <span style="color: #4caf50;">🟢 MODO PRODUCCIÓN</span>
+                        <?php elseif ($mode === 'TEST'): ?>
+                            <span style="color: #ff6b6b;">🔴 MODO PRUEBA</span>
+                        <?php else: ?>
+                            <span style="color: #999;">⚪ NO CONFIGURADO</span>
+                        <?php endif; ?>
+                    </div>
+                    <div style="font-size: 14px; color: #666;">
+                        <?php if ($mode === 'LIVE'): ?>
+                            Los pagos son reales. Los clientes serán cobrados.
+                        <?php elseif ($mode === 'TEST'): ?>
+                            Los pagos son simulados. Usa tarjetas de prueba.
+                        <?php else: ?>
+                            Configura las credenciales de Stripe primero.
+                        <?php endif; ?>
+                    </div>
+                </div>
                 
-                <?php if ($mode !== 'LIVE'): ?>
-                <a href="<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => 'live', 'sesskey' => sesskey()]); ?>" 
-                   class="btn btn-success">
-                    <i class="fa fa-check"></i> Cambiar a LIVE
-                </a>
-                <?php endif; ?>
+                <div class="custom-control custom-switch" style="transform: scale(2); margin-right: 30px;">
+                    <input type="checkbox" class="custom-control-input" id="stripeMode" 
+                           <?php echo $mode === 'TEST' ? 'checked' : ''; ?>
+                           onchange="window.location.href='<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'switch_mode', 'mode' => $mode === 'TEST' ? 'live' : 'test', 'sesskey' => sesskey()]); ?>'">
+                    <label class="custom-control-label" for="stripeMode"></label>
+                </div>
+                
+                <div style="text-align: right; min-width: 100px;">
+                    <div style="font-size: 12px; color: #999; margin-bottom: 3px;">
+                        <?php echo $mode === 'TEST' ? 'LIVE' : 'TEST'; ?>
+                    </div>
+                    <div style="font-size: 10px; color: #999;">
+                        Click para cambiar
+                    </div>
+                </div>
             </div>
             
             <hr>
