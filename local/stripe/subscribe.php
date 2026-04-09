@@ -43,10 +43,10 @@ $plans_live = [
 
 // TEST mode Price IDs
 $plans_test = [
-    'mxn_monthly' => 'price_1TK4PJ2UWdKwCEWaUEDtih4l', // 850 MXN/month TEST
-    'mxn_yearly' => 'price_1TK4PJ2UWdKwCEWaq3PnIE6r',  // 8500 MXN/year TEST
-    'usd_monthly' => 'price_1TK4PK2UWdKwCEWaXxhRi6qF', // 48 USD/month TEST
-    'usd_yearly' => 'price_1TK4PK2UWdKwCEWaFAuAtUav',  // 500 USD/year TEST
+    'mxn_monthly' => 'price_1TKPWMFQLKnVWYfjwv2pcfNZ', // 850 MXN/month TEST
+    'mxn_yearly' => 'price_1TKPWMFQLKnVWYfjahqLiS7F',  // 8500 MXN/year TEST
+    'usd_monthly' => 'price_1TKPWMFQLKnVWYfjfA1nfUUm', // 48 USD/month TEST
+    'usd_yearly' => 'price_1TKPWNFQLKnVWYfj1Rw7co4D',  // 500 USD/year TEST
 ];
 
 // Select the appropriate plan set based on mode
