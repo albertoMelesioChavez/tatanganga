@@ -1,7 +1,7 @@
 <?php
 // Stripe webhook endpoint.
 
-define('NO_DEBUG_DISPLAY', false);
+define('NO_DEBUG_DISPLAY', true);
 define('CLI_SCRIPT', false);
 
 require_once(__DIR__ . '/../../config.php');
