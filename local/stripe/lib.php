@@ -133,12 +133,16 @@ function local_stripe_store_customer_id(int $userid, string $customerid): void {
  */
 function local_stripe_find_user_by_customer(string $customerid): ?int {
     global $DB;
-    $pref = $DB->get_record('user_preferences', [
+    $sql = "SELECT userid FROM {user_preferences} 
+            WHERE name = :name 
+            AND " . $DB->sql_compare_text('value') . " = " . $DB->sql_compare_text(':value');
+    $params = [
         'name' => 'local_stripe_customer_id',
         'value' => $customerid,
-    ]);
-    if ($pref && !empty($pref->userid)) {
-        return (int) $pref->userid;
+    ];
+    $userid = $DB->get_field_sql($sql, $params);
+    if ($userid) {
+        return (int) $userid;
     }
     return null;
 }
