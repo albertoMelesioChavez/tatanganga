@@ -146,3 +146,19 @@ function local_stripe_find_user_by_customer(string $customerid): ?int {
     }
     return null;
 }
+
+/**
+ * Check if a user has the student_suscriptor role.
+ *
+ * @param int $userid
+ * @return bool
+ */
+function local_stripe_user_has_suscriptor_role(int $userid): bool {
+    global $DB;
+    $context = context_system::instance();
+    $role = $DB->get_record('role', ['shortname' => 'student_suscriptor']);
+    if (!$role) {
+        return false;
+    }
+    return user_has_role_assignment($userid, $role->id, $context->id);
+}
