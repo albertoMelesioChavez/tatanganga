@@ -474,16 +474,16 @@ body {
     }
 }
 
-// Remover el fondo blanco del card contenedor principal para evitar "card dentro de card"
-body.path-course-view #region-main,
+// Remover el fondo blanco del card contenedor principal para evitar "card dentro de card" (SOLO EN COMUNIDAD / FOROS)
+body.format-social #region-main,
 body.path-mod-forum #region-main,
-body.path-course-view #region-main > .card,
+body.format-social #region-main > .card,
 body.path-mod-forum #region-main > .card,
-body.path-course-view .course-content,
-body.path-course-view .course-content > .card,
+body.format-social .course-content,
+body.format-social .course-content > .card,
 body.path-mod-forum .generalbox,
-body.path-course-view #page-header,
-body.path-course-view #page-header .card {
+body.format-social #page-header,
+body.format-social #page-header .card {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -693,7 +693,13 @@ a {
 // --------------------------------------------------------------------------
 @media (min-width: 768px) {
     #page.drawers .main-inner {
-        padding: 1.5rem 4rem !important; // Padding lateral para que no toque los bordes
+        padding: 1.5rem 9rem !important; // Margen original para cursos regulares
+    }
+    
+    // Ancho completo SOLO para la comunidad (foros y formato social)
+    body.format-social #page.drawers .main-inner,
+    body.path-mod-forum #page.drawers .main-inner {
+        padding: 1.5rem 4rem !important;
         max-width: 100% !important;
         width: 100% !important;
     }
