@@ -64,6 +64,7 @@ if (empty($users)) {
     echo '<th>Roles</th>';
     echo '<th>Cursos</th>';
     echo '<th>Stripe</th>';
+    echo '<th>Acciones</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -163,6 +164,19 @@ if (empty($users)) {
             echo '<span class="badge bg-success" title="' . s($customerid) . '">✓ Stripe</span>';
         } else {
             echo '<span class="text-muted">-</span>';
+        }
+        echo '</td>';
+        
+        // Acciones
+        echo '<td>';
+        global $USER;
+        if ($user->id != $USER->id && !is_siteadmin($user->id)) {
+            $loginasurl = new moodle_url('/course/loginas.php', [
+                'id' => 1, 
+                'user' => $user->id, 
+                'sesskey' => sesskey()
+            ]);
+            echo '<a href="' . $loginasurl->out() . '" class="btn btn-sm btn-outline-primary" title="Navegar por Moodle como este usuario">Entrar como</a>';
         }
         echo '</td>';
         
