@@ -699,9 +699,24 @@ a {
     // Ancho completo SOLO para la comunidad (foros y formato social)
     body.format-social #page.drawers .main-inner,
     body.path-mod-forum #page.drawers .main-inner {
-        padding: 1.5rem 4rem !important;
         max-width: 100% !important;
         width: 100% !important;
+    }
+}
+
+// Para pantallas grandes (1025px+) donde aparecen los bordes decorativos de 280px
+@media (min-width: 1025px) {
+    body.format-social #page.drawers .main-inner,
+    body.path-mod-forum #page.drawers .main-inner {
+        padding: 1.5rem 18.5rem !important; // ~296px de padding para librar el borde de 280px
+    }
+}
+
+// Para pantallas medianas (768px - 1024px) donde los bordes están ocultos
+@media (min-width: 768px) and (max-width: 1024px) {
+    body.format-social #page.drawers .main-inner,
+    body.path-mod-forum #page.drawers .main-inner {
+        padding: 1.5rem 2rem !important; // Aprovechar todo el ancho disponible
     }
 }
 
