@@ -162,3 +162,42 @@ function local_stripe_user_has_suscriptor_role(int $userid): bool {
     }
     return user_has_role_assignment($userid, $role->id, $context->id);
 }
+
+/**
+ * Inject a "Gestionar Suscripción" link into the user profile navigation tree.
+ * Only shown to users who have an active suscriptor role.
+ *
+ * @param \core_user\output\myprofile\tree $tree  The profile navigation tree.
+ * @param stdClass                         $user  The user whose profile is being viewed.
+ * @param bool                             $iscurrentuser True when viewing own profile.
+ * @param stdClass|null                    $course Current course (null on site level).
+ * @return bool
+ */
+function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    global $USER;
+
+    // Only show on the current user's own profile.
+    if (!$iscurrentuser) {
+        return false;
+    }
+
+    // Only show if the user is a subscriber.
+    if (!local_stripe_user_has_suscriptor_role($user->id)) {
+        return false;
+    }
+
+    $url = new moodle_url('/local/stripe/portal.php');
+
+    $node = new core_user\output\myprofile\node(
+        'local_stripe',          // Category (creates a new section if it doesn't exist).
+        'stripe_portal',         // Unique node name.
+        get_string('managebilling', 'local_stripe'), // Link text.
+        null,                    // Parent node (null = top-level in category).
+        $url,                    // URL.
+        null,                    // Title attribute.
+        'fa fa-credit-card'      // Icon.
+    );
+
+    $tree->add_node($node);
+    return true;
+}

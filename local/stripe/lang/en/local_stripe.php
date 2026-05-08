@@ -21,3 +21,5 @@ $string['priceid'] = 'Price ID';
 $string['priceid_desc'] = 'Default Stripe Price ID for subscriptions (starts with price_)';
 $string['settings'] = 'Stripe Settings';
 $string['privacy:metadata'] = 'The Stripe plugin does not store any personal data.';
+
+$string['managebilling'] = 'Gestionar Suscripción';
