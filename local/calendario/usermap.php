@@ -176,35 +176,34 @@ $js = <<<JS
 
   var map = L.map('usermap', { 
     scrollWheelZoom: false,
-    maxBounds: [[-90, -180], [90, 180]],
-    maxBoundsViscosity: 1.0,
-    minZoom: 1
-  }).setView([10, 20], 1.3);
+    minZoom: 2
+  }).setView([20, 0], 2);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 8,
-    noWrap: true,
-    bounds: [[-90, -180], [90, 180]],
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  function radius(count) {
-    return Math.min(42000, 9000 + (count * 5500));
-  }
-
   points.forEach(function(p) {
-    var circle = L.circle([p.lat, p.lng], {
-      radius: radius(p.count),
-      color: '#8B1538',
-      weight: 2,
-      fillColor: '#8B1538',
-      fillOpacity: 0.22
+    // Calcular un tamaño de burbuja dinámico según la cantidad de usuarios
+    var size = Math.min(80, 30 + (p.count * 5)); // Mínimo 30px, crece con los usuarios
+    var fontSize = Math.min(20, 12 + (p.count)); 
+    
+    // Crear un HTML con el número de usuarios en el centro
+    var iconHtml = '<div style="background-color: rgba(139, 21, 56, 0.85); color: white; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; width: ' + size + 'px; height: ' + size + 'px; font-weight: bold; font-size: ' + fontSize + 'px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5);">' + p.count + '</div>';
+
+    var marker = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({
+        html: iconHtml,
+        className: 'custom-user-marker',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2]
+      })
     }).addTo(map);
 
     var title = (p.label || 'Usuarios') + ': ' + p.count;
-    circle.bindPopup('<div style="font-weight:700;margin-bottom:4px;">' + (p.label || '') + '</div>' +
-      '<div style="color:#374151;">' + p.count + ' usuario(s)</div>');
-    circle.bindTooltip(title);
+    marker.bindPopup('<div style="font-weight:700;margin-bottom:4px;font-size:14px;">' + (p.label || '') + '</div><div style="color:#374151;font-size:13px;">' + p.count + ' usuario(s) registrados aquí</div>');
+    marker.bindTooltip(title, {direction: 'top', offset: [0, -(size/2)]});
   });
 })();
 JS;
