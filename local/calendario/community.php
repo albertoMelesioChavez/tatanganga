@@ -49,6 +49,14 @@ $communityforumid = LOCAL_CALENDARIO_COMMUNITY_FORUMID;
 $communitycourse = $DB->get_record('course', ['id' => $communitycourseid], '*', MUST_EXIST);
 $communityforum = $DB->get_record('forum', ['id' => $communityforumid], '*', MUST_EXIST);
 
+// Forzar que el foro de la comunidad sea formato "blog" para previsualizar multimedia e imágenes.
+if ($communityforum->type !== 'blog') {
+    $DB->set_field('forum', 'type', 'blog', ['id' => $communityforumid]);
+    
+    // Si la caché de Moodle necesita refrescarse, purgamos la del curso.
+    rebuild_course_cache($communitycourseid, true);
+}
+
 // Auto-enrol user in community course if not already enrolled.
 $context = context_course::instance($communitycourseid);
 if (!is_enrolled($context, $USER)) {
