@@ -43,5 +43,18 @@ class hook_callbacks {
         ))->add_callback(static function(\stdclass $row): bool {
             return true;
         }));
+
+        // Añadir el botón "Entrar como"
+        $report->add_action((new action(
+            new moodle_url('/course/loginas.php', ['id' => 1, 'user' => ':id', 'sesskey' => sesskey()]),
+            new pix_icon('t/loginas', 'Entrar como este usuario'),
+            [],
+            false,
+            'Entrar como usuario'
+        ))->add_callback(static function(\stdclass $row): bool {
+            global $USER;
+            // No podemos entrar como nosotros mismos ni como otro administrador
+            return ($row->id != $USER->id) && !is_siteadmin($row->id);
+        }));
     }
 }
