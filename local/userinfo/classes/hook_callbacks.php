@@ -2,11 +2,21 @@
 namespace local_userinfo;
 
 use core_reportbuilder\local\report\action;
+use core\hook\output\before_footer_html_generation;
 use moodle_url;
 use pix_icon;
 
 class hook_callbacks {
     
+    public static function inject_userinfo_js(before_footer_html_generation $hook): void {
+        global $PAGE;
+        
+        // Only load on admin user browsing page
+        if ($PAGE->pagetype === 'admin-user') {
+            $PAGE->requires->js_call_amd('local_userinfo/userinfo', 'init');
+        }
+    }
+
     public static function add_user_info_column(\core_reportbuilder\hook\after_system_report_created $hook): void {
         global $PAGE;
         

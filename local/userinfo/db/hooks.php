@@ -6,4 +6,8 @@ $callbacks = [
         'hook' => \core_reportbuilder\hook\after_system_report_created::class,
         'callback' => \local_userinfo\hook_callbacks::class . '::add_user_info_column',
     ],
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => \local_userinfo\hook_callbacks::class . '::inject_userinfo_js',
+    ],
 ];
