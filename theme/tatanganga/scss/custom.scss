@@ -475,11 +475,20 @@ body {
 }
 
 // Remover el fondo blanco del card contenedor principal para evitar "card dentro de card"
+body.path-course-view #region-main,
+body.path-mod-forum #region-main,
 body.path-course-view #region-main > .card,
-body.path-mod-forum #region-main > .card {
+body.path-mod-forum #region-main > .card,
+body.path-course-view .course-content,
+body.path-course-view .course-content > .card,
+body.path-mod-forum .generalbox,
+body.path-course-view #page-header,
+body.path-course-view #page-header .card {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 [data-region="course-index"] {
@@ -684,7 +693,7 @@ a {
 // --------------------------------------------------------------------------
 @media (min-width: 768px) {
     #page.drawers .main-inner {
-        padding: 1.5rem 4rem !important; // Reducido para dar más ancho en desktop
+        padding: 1.5rem 2rem !important; // Aún más reducido para que abarque casi todo el ancho
         max-width: 1400px;
         margin: 0 auto;
     }
