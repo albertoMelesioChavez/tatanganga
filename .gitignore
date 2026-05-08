@@ -5,6 +5,7 @@ dataroot/
 
 # Composer / npm
 /vendor/
+local/stripe/vendor/
 /node_modules/
 
 # Docker (local-only)
