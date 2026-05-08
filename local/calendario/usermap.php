@@ -47,7 +47,15 @@ if (!$canaccess) {
 }
 
 if (!$canaccess) {
-    require_capability('moodle/site:config', $context);
+    // Allow site admins to always access.
+    if (!is_siteadmin()) {
+        redirect(
+            new moodle_url('/local/stripe/plans.php'),
+            get_string('nopermissions', 'error', 'ver el mapa de usuarios. Suscríbete para acceder.'),
+            null,
+            \core\output\notification::NOTIFY_WARNING
+        );
+    }
 }
 
 $PAGE->set_context($context);
