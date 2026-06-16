@@ -68,6 +68,7 @@ try {
         'line_items[0][price]' => $priceid,
         'line_items[0][quantity]' => 1,
         'mode' => 'subscription',
+        'payment_method_types[0]' => 'card',
         'success_url' => $CFG->wwwroot . '/local/stripe/success.php?session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => $CFG->wwwroot . '/local/stripe/cancel.php',
         'metadata[userid]' => $USER->id,
