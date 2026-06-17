@@ -35,6 +35,12 @@ echo $OUTPUT->header();
     padding: 10px;
     position: relative;
     scroll-behavior: smooth;
+    z-index: 1;
+}
+
+/* Ensure user menu dropdown appears above pricing plans */
+.dropdown-menu {
+    z-index: 9999 !important;
 }
 
 .scroll-indicator {
