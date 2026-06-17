@@ -362,7 +362,7 @@ class hook_callbacks {
             . 'act.classList.add("activity-locked");'
             . 'var msg=document.createElement("div");'
             . 'msg.className="locked-message";'
-            . 'msg.innerHTML="🔒 Esta clase requiere suscripción. <a href=\\"/local/stripe/index.php\\">Suscríbete aquí</a> para desbloquear todo el contenido.";'
+            . 'msg.innerHTML="🔒 Esta clase requiere suscripción. <a href=\\"/local/stripe/plans.php\\">Suscríbete aquí</a> para desbloquear todo el contenido.";'
             . 'act.appendChild(msg);'
             . '}'
             . '});'
@@ -510,7 +510,7 @@ class hook_callbacks {
         
         // Not enrolled: redirect to subscription page.
         $courseurl = new moodle_url('/course/view.php', ['id' => $cm->course]);
-        redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/index.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
+        redirect($courseurl, '🔒 Esta clase requiere suscripción. <a href="/local/stripe/plans.php">Suscríbete aquí</a> para desbloquear todo el contenido.');
     }
 
     /**

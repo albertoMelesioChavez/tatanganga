@@ -35,34 +35,49 @@ if (empty($secretkey)) {
 
 echo "Fetching active subscriptions from Stripe...\n";
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/subscriptions?status=active&limit=100');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERPWD, $secretkey . ':');
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
-
-$response = curl_exec($ch);
-$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpcode !== 200) {
-    cli_error("Failed to fetch subscriptions from Stripe: HTTP $httpcode");
-}
-
-$data = json_decode($response, true);
-if (!isset($data['data'])) {
-    cli_error('Invalid response from Stripe API');
-}
-
-$subscriptions = $data['data'];
-echo "Found " . count($subscriptions) . " active subscriptions in Stripe\n";
-
-// Build list of customer IDs with active subscriptions
 $activecustomerids = [];
-foreach ($subscriptions as $sub) {
-    $activecustomerids[] = $sub['customer'];
+$has_more = true;
+$starting_after = null;
+$total_fetched = 0;
+
+while ($has_more) {
+    $url = 'https://api.stripe.com/v1/subscriptions?status=active&limit=100';
+    if ($starting_after) {
+        $url .= '&starting_after=' . $starting_after;
+    }
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERPWD, $secretkey . ':');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpcode !== 200) {
+        cli_error("Failed to fetch subscriptions from Stripe: HTTP $httpcode");
+    }
+    
+    $data = json_decode($response, true);
+    if (!isset($data['data'])) {
+        cli_error('Invalid response from Stripe API');
+    }
+    
+    foreach ($data['data'] as $sub) {
+        $activecustomerids[] = $sub['customer'];
+    }
+    
+    $total_fetched += count($data['data']);
+    $has_more = $data['has_more'] ?? false;
+    if ($has_more && !empty($data['data'])) {
+        $last_sub = end($data['data']);
+        $starting_after = $last_sub['id'];
+    }
 }
 
+echo "Found " . $total_fetched . " active subscriptions in Stripe\n";
 echo "Active customer IDs: " . count($activecustomerids) . "\n\n";
 
 // Get all users with student_suscriptor role

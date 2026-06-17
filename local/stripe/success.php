@@ -32,7 +32,7 @@ echo $OUTPUT->header();
                             <li>Tu acceso premium se activará en unos segundos</li>
                             <li>Tendrás acceso completo a todos los cursos</li>
                             <li>El banner de suscripción desaparecerá automáticamente</li>
-                            <li>Tu suscripción se renovará automáticamente cada mes</li>
+                            <li>Tu suscripción se renovará automáticamente al finalizar el periodo contratado</li>
                         </ul>
                     </div>
                     

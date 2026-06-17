@@ -103,8 +103,10 @@ switch ($type) {
         if ($customerid) {
             $userid = local_stripe_find_user_by_customer($customerid);
             if ($userid) {
-                if ($type === 'invoice.payment_failed' || $type === 'customer.subscription.deleted' || $status !== 'active') {
+                if ($type === 'invoice.payment_failed' || $type === 'customer.subscription.deleted' || ($status !== 'active' && $status !== 'trialing')) {
                     local_stripe_remove_suscriptor_role($userid);
+                } else if ($status === 'active' || $status === 'trialing') {
+                    local_stripe_assign_suscriptor_role($userid);
                 }
             }
         }

@@ -18,6 +18,9 @@ if ($has_subscription) {
     redirect(new moodle_url('/'), 'Ya tienes una suscripción activa', null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
+// Check if user has a stored Stripe customer ID (previous subscriber without active role)
+$has_customer_id = !empty(get_user_preferences('local_stripe_customer_id', null, $USER->id));
+
 echo $OUTPUT->header();
 
 ?>
@@ -204,6 +207,24 @@ echo $OUTPUT->header();
     font-weight: bold;
     box-shadow: 0 2px 8px rgba(196, 162, 101, 0.3);
 }
+
+.manage-billing-link {
+    display: inline-block;
+    color: #c4a265;
+    font-size: 14px;
+    text-decoration: none;
+    border: 1px solid rgba(196, 162, 101, 0.4);
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.manage-billing-link:hover {
+    color: #1a1a2e;
+    background: #c4a265;
+    text-decoration: none;
+    border-color: #c4a265;
+}
 </style>
 
 <div class="container mt-4">
@@ -299,6 +320,19 @@ echo $OUTPUT->header();
             <small>Todos los planes incluyen acceso completo a la plataforma. Puedes cancelar en cualquier momento.</small>
         </p>
     </div>
+
+    <?php if ($has_customer_id): ?>
+    <div class="text-center mt-4" style="padding: 24px; border-top: 1px solid rgba(196,162,101,0.2);">
+        <p style="color: #c0c0c0; margin-bottom: 12px;">
+            ¿Ya tuviste una suscripción con nosotros?
+        </p>
+        <a href="<?php echo new moodle_url('/local/stripe/portal.php'); ?>" class="manage-billing-link">
+            <i class="fa fa-credit-card" style="margin-right: 8px;"></i>
+            Ver mi historial de pagos y reactivar suscripción
+        </a>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <div class="scroll-indicator left hidden" id="scrollIndicatorLeft">←</div>

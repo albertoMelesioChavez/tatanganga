@@ -29,7 +29,7 @@ echo $OUTPUT->header();
                     </div>
                     
                     <div class="mt-4">
-                        <a href="<?php echo $CFG->wwwroot; ?>/local/stripe/subscribe.php" class="btn btn-primary btn-lg">
+                        <a href="<?php echo $CFG->wwwroot; ?>/local/stripe/plans.php" class="btn btn-primary btn-lg">
                             <i class="fa fa-credit-card"></i> Intentar de nuevo
                         </a>
                         <a href="<?php echo $CFG->wwwroot; ?>" class="btn btn-secondary btn-lg">

@@ -35,26 +35,43 @@ if (empty($secretkey)) {
 
 echo "Fetching active subscriptions from Stripe...\n";
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://api.stripe.com/v1/subscriptions?status=active&limit=100');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERPWD, $secretkey . ':');
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+$subscriptions = [];
+$has_more = true;
+$starting_after = null;
 
-$response = curl_exec($ch);
-$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpcode !== 200) {
-    cli_error("Failed to fetch subscriptions from Stripe: HTTP $httpcode");
+while ($has_more) {
+    $url = 'https://api.stripe.com/v1/subscriptions?status=active&limit=100';
+    if ($starting_after) {
+        $url .= '&starting_after=' . $starting_after;
+    }
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERPWD, $secretkey . ':');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpcode !== 200) {
+        cli_error("Failed to fetch subscriptions from Stripe: HTTP $httpcode");
+    }
+    
+    $data = json_decode($response, true);
+    if (!isset($data['data'])) {
+        cli_error('Invalid response from Stripe API');
+    }
+    
+    $subscriptions = array_merge($subscriptions, $data['data']);
+    $has_more = $data['has_more'] ?? false;
+    if ($has_more && !empty($data['data'])) {
+        $last_sub = end($data['data']);
+        $starting_after = $last_sub['id'];
+    }
 }
 
-$data = json_decode($response, true);
-if (!isset($data['data'])) {
-    cli_error('Invalid response from Stripe API');
-}
-
-$subscriptions = $data['data'];
 echo "Found " . count($subscriptions) . " active subscriptions in Stripe\n\n";
 
 $assigned = 0;
