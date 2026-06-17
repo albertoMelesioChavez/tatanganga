@@ -27,6 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 $callbacks = [
     [
         'hook' => \core_user\hook\extend_user_menu::class,
-        'callback' => 'local_stripe\local_stripe_extend_user_menu',
+        'callback' => [\local_stripe\hook_callbacks::class, 'extend_user_menu'],
     ],
 ];
