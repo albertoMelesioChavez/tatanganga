@@ -39,7 +39,6 @@ class hook_callbacks {
         } else {
             $menuitem->url = new \moodle_url('/local/stripe/plans.php');
         }
-        $menuitem->pix = 'fa-credit-card';
         $menuitem->titleidentifier = 'subscriptionmenu';
         $menuitem->titlecomponent = 'local_stripe';
         $hook->add_navitem($menuitem);
