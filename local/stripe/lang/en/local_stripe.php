@@ -23,3 +23,6 @@ $string['settings'] = 'Stripe Settings';
 $string['privacy:metadata'] = 'The Stripe plugin does not store any personal data.';
 
 $string['managebilling'] = 'Gestionar Suscripción';
+$string['viewplans'] = 'Planes de Suscripción';
+$string['subscribenow'] = 'Suscribirme';
+

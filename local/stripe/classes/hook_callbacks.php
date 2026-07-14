@@ -18,22 +18,36 @@ class hook_callbacks {
     public static function extend_user_menu(\core_user\hook\extend_user_menu $hook): void {
         global $USER;
 
-        // Only show if user has a Stripe customer ID stored
-        $customerid = get_user_preferences('local_stripe_customer_id', null, $USER->id);
-        if (empty($customerid)) {
+        // Skip guests and non-logged-in users.
+        if (!isloggedin() || isguestuser()) {
             return;
         }
 
-        // Create the menu item
-        $menuitem = new \stdClass();
-        $menuitem->itemtype = 'custom';
-        $menuitem->title = get_string('managebilling', 'local_stripe');
-        $menuitem->url = new \moodle_url('/local/stripe/portal.php');
-        $menuitem->pix = 'fa-credit-card'; // FontAwesome icon
-        $menuitem->titleidentifier = 'managebilling';
-        $menuitem->titlecomponent = 'local_stripe';
+        require_once(__DIR__ . '/../lib.php');
 
-        // Add the menu item to the hook
-        $hook->add_navitem($menuitem);
+        $customerid = get_user_preferences('local_stripe_customer_id', null, $USER->id);
+        $hassubscription = local_stripe_user_has_suscriptor_role($USER->id);
+
+        if (!empty($customerid) || $hassubscription) {
+            // Show "Gestionar Suscripción" (Manage Subscription)
+            $menuitem = new \stdClass();
+            $menuitem->itemtype = 'custom';
+            $menuitem->title = get_string('managebilling', 'local_stripe');
+            $menuitem->url = new \moodle_url('/local/stripe/portal.php');
+            $menuitem->pix = 'fa-credit-card'; // FontAwesome icon
+            $menuitem->titleidentifier = 'managebilling';
+            $menuitem->titlecomponent = 'local_stripe';
+            $hook->add_navitem($menuitem);
+        } else {
+            // Show "Planes de Suscripción" (Subscription Plans)
+            $menuitem = new \stdClass();
+            $menuitem->itemtype = 'custom';
+            $menuitem->title = get_string('viewplans', 'local_stripe');
+            $menuitem->url = new \moodle_url('/local/stripe/plans.php');
+            $menuitem->pix = 'fa-star'; // FontAwesome star icon for premium plans
+            $menuitem->titleidentifier = 'viewplans';
+            $menuitem->titlecomponent = 'local_stripe';
+            $hook->add_navitem($menuitem);
+        }
     }
 }
