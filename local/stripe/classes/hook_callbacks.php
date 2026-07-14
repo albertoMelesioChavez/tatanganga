@@ -32,7 +32,7 @@ class hook_callbacks {
 
         // Keep a single, predictable subscription entry in the avatar menu.
         $menuitem = new \stdClass();
-        $menuitem->itemtype = 'custom';
+        $menuitem->itemtype = 'link';
         $menuitem->title = get_string('subscriptionmenu', 'local_stripe');
         if ($hasbilling) {
             $menuitem->url = new \moodle_url('/local/stripe/portal.php');

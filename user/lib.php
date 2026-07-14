@@ -939,14 +939,6 @@ function user_get_user_navigation_info($user, $page, $options = array()) {
         }
     }
 
-    // Call to hook to add menu items.
-    $hook = new extend_user_menu();
-    di::get(core\hook\manager::class)->dispatch($hook);
-    $hookitems = $hook->get_navitems();
-    foreach ($hookitems as $menuitem) {
-        $returnobject->navitems[] = $menuitem;
-    }
-
     if ($custommenucount > 0) {
         // Only add a divider if we have customusermenuitems.
         $divider = new stdClass();
@@ -961,6 +953,15 @@ function user_get_user_navigation_info($user, $page, $options = array()) {
     $preferences->title = get_string('preferences');
     $preferences->titleidentifier = 'preferences,moodle';
     $returnobject->navitems[] = $preferences;
+
+    // Add plugin menu items after Preferences. This keeps account-related
+    // actions together and places them before the language and logout items.
+    $hook = new extend_user_menu();
+    di::get(core\hook\manager::class)->dispatch($hook);
+    $hookitems = $hook->get_navitems();
+    foreach ($hookitems as $menuitem) {
+        $returnobject->navitems[] = $menuitem;
+    }
 
 
     if (is_role_switched($course->id)) {
