@@ -201,3 +201,53 @@ function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tre
     $tree->add_node($node);
     return true;
 }
+
+/**
+ * Find a Stripe customer ID by email using Stripe SDK.
+ *
+ * @param string $email
+ * @param string $secretkey
+ * @return string|null
+ */
+function local_stripe_find_customer_id_by_email(string $email, string $secretkey): ?string {
+    global $CFG;
+    require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
+    \Stripe\Stripe::setApiKey($secretkey);
+    try {
+        $customers = \Stripe\Customer::search([
+            'query' => 'email:"' . $email . '"',
+            'limit' => 1,
+        ]);
+        if (!empty($customers->data)) {
+            return $customers->data[0]->id;
+        }
+    } catch (Exception $e) {
+        error_log('Stripe error in find_customer_id_by_email: ' . $e->getMessage());
+    }
+    return null;
+}
+
+/**
+ * Check if a Stripe customer has an active subscription using Stripe SDK.
+ *
+ * @param string $customerid
+ * @param string $secretkey
+ * @return bool
+ */
+function local_stripe_customer_has_active_subscription(string $customerid, string $secretkey): bool {
+    global $CFG;
+    require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
+    \Stripe\Stripe::setApiKey($secretkey);
+    try {
+        $subscriptions = \Stripe\Subscription::all([
+            'customer' => $customerid,
+            'status' => 'active',
+            'limit' => 1,
+        ]);
+        return !empty($subscriptions->data);
+    } catch (Exception $e) {
+        error_log('Stripe error in customer_has_active_subscription: ' . $e->getMessage());
+    }
+    return false;
+}
+

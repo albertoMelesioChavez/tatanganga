@@ -47,5 +47,22 @@ class local_stripe_observer {
         if (!is_enrolled(context_course::instance($firstcourse->id), $userid)) {
             $enrolplugin->enrol_user($instance, $userid, $studentroleid);
         }
+
+        // Check if there is an active Stripe subscription for this user on registration.
+        $user = $DB->get_record('user', ['id' => $userid, 'deleted' => 0]);
+        if ($user && !empty($user->email)) {
+            require_once(__DIR__ . '/../lib.php');
+            $secretkey = get_config('local_stripe', 'secretkey');
+            if (!empty($secretkey)) {
+                $customerid = local_stripe_find_customer_id_by_email($user->email, $secretkey);
+                if ($customerid) {
+                    if (local_stripe_customer_has_active_subscription($customerid, $secretkey)) {
+                        local_stripe_assign_suscriptor_role($userid);
+                        local_stripe_store_customer_id($userid, $customerid);
+                        error_log("Stripe observer: Assigned student_suscriptor role and stored customer ID {$customerid} on registration for user {$userid}");
+                    }
+                }
+            }
+        }
     }
 }
