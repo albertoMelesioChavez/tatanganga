@@ -13,6 +13,64 @@ function local_stripe_system_context(): context_system {
 }
 
 /**
+ * Get the matching Stripe locale for the current Moodle language.
+ *
+ * Stripe uses IETF language tags and only supports a subset of Moodle's
+ * language packs. Unsupported languages deliberately fall back to auto so
+ * Stripe can use the customer's browser preference.
+ *
+ * @param string|null $moodlelang Moodle language code, or the current language.
+ * @return string Stripe portal/Checkout locale.
+ */
+function local_stripe_get_stripe_locale(?string $moodlelang = null): string {
+    $language = $moodlelang ?? current_language();
+    $language = strtolower(str_replace('_', '-', $language));
+
+    $locales = [
+        'es-mx' => 'es-419',
+        'es-419' => 'es-419',
+        'pt-br' => 'pt-BR',
+        'fr-ca' => 'fr-CA',
+        'zh-hk' => 'zh-HK',
+        'zh-tw' => 'zh-TW',
+        'en-au' => 'en-AU',
+        'en-ca' => 'en-CA',
+        'en-gb' => 'en-GB',
+        'en-ie' => 'en-IE',
+        'en-in' => 'en-IN',
+        'en-nz' => 'en-NZ',
+        'en-sg' => 'en-SG',
+    ];
+    if (isset($locales[$language])) {
+        return $locales[$language];
+    }
+
+    $supportedlanguages = [
+        'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi', 'fil', 'fr',
+        'hr', 'hu', 'id', 'it', 'ja', 'ko', 'lt', 'lv', 'ms', 'mt', 'nb',
+        'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'th', 'tr', 'vi', 'zh',
+    ];
+    $base = explode('-', $language)[0];
+    return in_array($base, $supportedlanguages, true) ? $base : 'auto';
+}
+
+/**
+ * Get the subscription menu label in the user's Moodle language.
+ *
+ * Moodle variants such as es_mx can fall back to English when a plugin only
+ * provides an es translation, so explicitly use the Spanish base pack.
+ *
+ * @return string
+ */
+function local_stripe_get_subscription_menu_label(): string {
+    $language = strtolower(str_replace('-', '_', current_language()));
+    if (str_starts_with($language, 'es_') || $language === 'es') {
+        return get_string_manager()->get_string('subscriptionmenu', 'local_stripe', null, 'es');
+    }
+    return get_string('subscriptionmenu', 'local_stripe');
+}
+
+/**
  * Get the suscriptor role id.
  *
  * @return int|null

@@ -29,10 +29,16 @@ if (empty($secretkey)) {
  * Helper: create a Stripe billing portal session for a given customer ID.
  * Returns the response array or throws on HTTP error.
  */
-function local_stripe_create_portal_session(string $customerid, string $secretkey, string $returnurl): array {
+function local_stripe_create_portal_session(
+    string $customerid,
+    string $secretkey,
+    string $returnurl,
+    string $locale
+): array {
     $postdata = [
         'customer'   => $customerid,
         'return_url' => $returnurl,
+        'locale' => $locale,
     ];
 
     $ch = curl_init('https://api.stripe.com/v1/billing_portal/sessions');
@@ -100,9 +106,10 @@ function local_stripe_find_live_customer_by_email(string $email, string $secretk
 }
 
 $returnurl = $CFG->wwwroot . '/my/';
+$locale = local_stripe_get_stripe_locale();
 
 try {
-    $session = local_stripe_create_portal_session($customerid, $secretkey, $returnurl);
+    $session = local_stripe_create_portal_session($customerid, $secretkey, $returnurl, $locale);
 
     if (empty($session['url'])) {
         throw new Exception('No portal URL returned from Stripe');
@@ -132,7 +139,7 @@ try {
             error_log("Stripe portal: updated customer ID for user {$USER->id} from '{$customerid}' to '{$livecustomerid}'");
 
             try {
-                $session = local_stripe_create_portal_session($livecustomerid, $secretkey, $returnurl);
+                $session = local_stripe_create_portal_session($livecustomerid, $secretkey, $returnurl, $locale);
                 if (!empty($session['url'])) {
                     redirect($session['url']);
                 }

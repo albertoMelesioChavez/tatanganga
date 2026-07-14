@@ -80,6 +80,7 @@ try {
         'metadata[email]' => $USER->email,
         'subscription_data[metadata][moodle_userid]' => $USER->id,
         'subscription_data[metadata][moodle_username]' => $USER->username,
+        'locale' => local_stripe_get_stripe_locale(),
     ];
     
     $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');
