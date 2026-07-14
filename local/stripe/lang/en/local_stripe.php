@@ -22,7 +22,18 @@ $string['priceid_desc'] = 'Default Stripe Price ID for subscriptions (starts wit
 $string['settings'] = 'Stripe Settings';
 $string['privacy:metadata'] = 'The Stripe plugin does not store any personal data.';
 
-$string['managebilling'] = 'Gestionar Suscripción';
-$string['viewplans'] = 'Planes de Suscripción';
-$string['subscribenow'] = 'Suscribirme';
-
+$string['managebilling'] = 'Manage subscription';
+$string['mysubscription'] = 'My subscription';
+$string['subscriptionaccount'] = 'My subscription';
+$string['subscriptionactive'] = 'Active subscription';
+$string['subscriptionactive_desc'] = 'Your premium access is active. Manage payments and invoices through Stripe\'s secure portal.';
+$string['subscriptioninactive'] = 'No active subscription';
+$string['subscriptioninactive_desc'] = 'Choose a plan to get full access to all premium content.';
+$string['subscriptionattention'] = 'Subscription without active access';
+$string['subscriptionattention_desc'] = 'We found your billing details, but your premium access is not active. You can review your subscription or contact support.';
+$string['subscriptionbillingmissing'] = 'Your premium access is active, but we could not find the associated billing profile. Contact support to manage your subscription.';
+$string['manageinstripe'] = 'Manage subscription';
+$string['manageinstripe_desc'] = 'You will be taken to Stripe\'s secure portal to change your payment method, view invoices, or cancel.';
+$string['securestripeportal'] = 'Secure Stripe portal';
+$string['viewplans'] = 'Subscription plans';
+$string['subscribenow'] = 'Subscribe';

@@ -23,5 +23,17 @@ $string['settings'] = 'Configuración de Stripe';
 $string['privacy:metadata'] = 'El plugin de Stripe no almacena ningún dato personal.';
 
 $string['managebilling'] = 'Gestionar Suscripción';
+$string['mysubscription'] = 'Mi suscripción';
+$string['subscriptionaccount'] = 'Mi suscripción';
+$string['subscriptionactive'] = 'Suscripción activa';
+$string['subscriptionactive_desc'] = 'Tu acceso premium está activo. Administra tus pagos y facturas desde el portal seguro de Stripe.';
+$string['subscriptioninactive'] = 'Sin suscripción activa';
+$string['subscriptioninactive_desc'] = 'Elige un plan para obtener acceso completo a todo el contenido premium.';
+$string['subscriptionattention'] = 'Suscripción sin acceso activo';
+$string['subscriptionattention_desc'] = 'Encontramos tus datos de facturación, pero tu acceso premium no está activo. Puedes revisar tu suscripción o contactar a soporte.';
+$string['subscriptionbillingmissing'] = 'Tu acceso premium está activo, pero no encontramos el perfil de facturación asociado. Contacta a soporte para administrar la suscripción.';
+$string['manageinstripe'] = 'Administrar suscripción';
+$string['manageinstripe_desc'] = 'Serás dirigido al portal seguro de Stripe para cambiar tu método de pago, consultar facturas o cancelar.';
+$string['securestripeportal'] = 'Portal seguro de Stripe';
 $string['viewplans'] = 'Planes de Suscripción';
 $string['subscribenow'] = 'Suscribirme';

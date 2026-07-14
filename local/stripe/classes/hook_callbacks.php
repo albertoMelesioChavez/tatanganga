@@ -11,6 +11,26 @@ namespace local_stripe;
 class hook_callbacks {
 
     /**
+     * Add a persistent subscription entry to the primary navigation.
+     *
+     * @param \core\hook\navigation\primary_extend $hook
+     */
+    public static function extend_primary_navigation(\core\hook\navigation\primary_extend $hook): void {
+        if (!isloggedin() || isguestuser()) {
+            return;
+        }
+
+        $node = \navigation_node::create(
+            get_string('mysubscription', 'local_stripe'),
+            new \moodle_url('/local/stripe/account.php'),
+            \navigation_node::TYPE_CUSTOM,
+            null,
+            'local_stripe_subscription'
+        );
+        $hook->get_primaryview()->add_node($node);
+    }
+
+    /**
      * Callback to extend the user menu with Stripe billing portal link.
      *
      * @param \core_user\hook\extend_user_menu $hook
@@ -33,7 +53,7 @@ class hook_callbacks {
             $menuitem = new \stdClass();
             $menuitem->itemtype = 'custom';
             $menuitem->title = get_string('managebilling', 'local_stripe');
-            $menuitem->url = new \moodle_url('/local/stripe/portal.php');
+            $menuitem->url = new \moodle_url('/local/stripe/account.php');
             $menuitem->pix = 'fa-credit-card'; // FontAwesome icon
             $menuitem->titleidentifier = 'managebilling';
             $menuitem->titlecomponent = 'local_stripe';

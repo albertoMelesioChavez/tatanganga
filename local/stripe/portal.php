@@ -99,7 +99,7 @@ function local_stripe_find_live_customer_by_email(string $email, string $secretk
     return null;
 }
 
-$returnurl = $CFG->wwwroot . '/my/';
+$returnurl = $CFG->wwwroot . '/local/stripe/account.php';
 
 try {
     $session = local_stripe_create_portal_session($customerid, $secretkey, $returnurl);

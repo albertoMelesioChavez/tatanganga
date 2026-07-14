@@ -257,7 +257,7 @@ function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tre
         $tree->add_category($category);
     }
 
-    $url = new moodle_url('/local/stripe/portal.php');
+    $url = new moodle_url('/local/stripe/account.php');
 
     $node = new core_user\output\myprofile\node(
         'local_stripe',          // Category registered above.
