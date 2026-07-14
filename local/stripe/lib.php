@@ -237,8 +237,6 @@ function local_stripe_user_has_suscriptor_role(int $userid): bool {
  * @return bool
  */
 function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
-    global $USER;
-
     // Only show on the current user's own profile.
     if (!$iscurrentuser) {
         return false;
@@ -249,10 +247,20 @@ function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tre
         return false;
     }
 
+    // Profile nodes must reference a category that has already been registered.
+    // Guard against duplicates in case another callback registered it first.
+    if (!isset($tree->categories['local_stripe'])) {
+        $category = new core_user\output\myprofile\category(
+            'local_stripe',
+            get_string('pluginname', 'local_stripe')
+        );
+        $tree->add_category($category);
+    }
+
     $url = new moodle_url('/local/stripe/portal.php');
 
     $node = new core_user\output\myprofile\node(
-        'local_stripe',          // Category (creates a new section if it doesn't exist).
+        'local_stripe',          // Category registered above.
         'stripe_portal',         // Unique node name.
         get_string('managebilling', 'local_stripe'), // Link text.
         null,                    // Parent node (null = top-level in category).
