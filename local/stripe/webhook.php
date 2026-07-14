@@ -24,7 +24,7 @@ if (!local_stripe_verify_signature($payload, $sigheader, $webhooksecret)) {
 }
 
 $event = json_decode($payload, true);
-if (empty($event['type'])) {
+if (empty($event['id']) || empty($event['type'])) {
     http_response_code(400);
     echo 'Invalid payload';
     exit;
@@ -32,6 +32,16 @@ if (empty($event['type'])) {
 
 $type = $event['type'];
 $data = $event['data']['object'] ?? [];
+$eventid = $event['id'];
+
+if (local_stripe_event_processed($eventid)) {
+    http_response_code(200);
+    echo 'ok';
+    exit;
+}
+
+$userid = null;
+$handled = false;
 
 switch ($type) {
     case 'checkout.session.completed':
@@ -55,24 +65,18 @@ switch ($type) {
         
         // Priority 3: Fallback to customer email (less reliable)
         if (!$userid && $customerid) {
-            require_once(__DIR__ . '/vendor/autoload.php');
             $secretkey = get_config('local_stripe', 'secretkey');
             if ($secretkey) {
-                \Stripe\Stripe::setApiKey($secretkey);
-                try {
-                    $customer = \Stripe\Customer::retrieve($customerid);
-                    if (!empty($customer->email)) {
-                        $user = $DB->get_record('user', ['email' => $customer->email, 'deleted' => 0]);
-                        if ($user) {
-                            $userid = $user->id;
-                            $identification_method = 'email_fallback';
-                            error_log("Stripe webhook: User identified by email fallback: {$customer->email} (ID: {$userid})");
-                        } else {
-                            error_log("Stripe webhook: No user found with email: {$customer->email}");
-                        }
+                $email = local_stripe_get_customer_email($customerid, $secretkey);
+                if ($email) {
+                    $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0]);
+                    if ($user) {
+                        $userid = $user->id;
+                        $identification_method = 'email_fallback';
+                        error_log("Stripe webhook: User identified by email fallback: {$email} (ID: {$userid})");
+                    } else {
+                        error_log("Stripe webhook: No user found with email: {$email}");
                     }
-                } catch (Exception $e) {
-                    error_log("Stripe webhook: Error retrieving customer: " . $e->getMessage());
                 }
             }
         }
@@ -93,6 +97,7 @@ switch ($type) {
         } else {
             error_log("Stripe webhook: Could not determine userid for checkout session. Customer ID: " . ($customerid ?? 'none'));
         }
+        $handled = true;
         break;
 
     case 'invoice.payment_failed':
@@ -110,7 +115,12 @@ switch ($type) {
                 }
             }
         }
+        $handled = true;
         break;
+}
+
+if ($handled) {
+    local_stripe_mark_event_processed($eventid, $type, $userid);
 }
 
 http_response_code(200);
@@ -130,19 +140,29 @@ function local_stripe_verify_signature(string $payload, string $sigheader, strin
     }
     $parts = explode(',', $sigheader);
     $timestamp = null;
-    $signature = null;
+    $signatures = [];
     foreach ($parts as $part) {
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, null);
         if ($k === 't') {
             $timestamp = $v;
-        } elseif ($k === 'v1') {
-            $signature = $v;
+        } elseif ($k === 'v1' && !empty($v)) {
+            $signatures[] = $v;
         }
     }
-    if (!$timestamp || !$signature) {
+    if (!$timestamp || empty($signatures) || !ctype_digit($timestamp)) {
+        return false;
+    }
+    // Stripe's default tolerance is five minutes. Reject stale signatures to
+    // prevent a captured request from being replayed later.
+    if (abs(time() - (int)$timestamp) > 300) {
         return false;
     }
     $signedpayload = $timestamp . '.' . $payload;
     $computed = hash_hmac('sha256', $signedpayload, $secret);
-    return hash_equals($computed, $signature);
+    foreach ($signatures as $signature) {
+        if (hash_equals($computed, $signature)) {
+            return true;
+        }
+    }
+    return false;
 }

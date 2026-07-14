@@ -46,9 +46,10 @@ function local_stripe_assign_suscriptor_role(int $userid): bool {
     
     $context = local_stripe_system_context();
     
-    // Check if user already has the role
+    // Keep enrolments in sync even when the role was restored before a new
+    // course was created.
     if (user_has_role_assignment($userid, $roleid, $context->id)) {
-        error_log("Stripe: User $userid already has student_suscriptor role");
+        local_stripe_enrol_in_all_courses($userid);
         return true;
     }
     
@@ -92,9 +93,25 @@ function local_stripe_enrol_in_all_courses(int $userid): void {
             $instance = $DB->get_record('enrol', ['id' => $instanceid]);
         }
 
-        // Check if user is already enrolled.
-        if (!is_enrolled(context_course::instance($course->id), $userid)) {
+        // Do not take ownership of enrolments created by administrators or
+        // other enrolment methods. Only record and later revoke our own.
+        $enrolment = $DB->get_record('user_enrolments', [
+            'enrolid' => $instance->id,
+            'userid' => $userid,
+        ]);
+        if (!$enrolment) {
             $enrolplugin->enrol_user($instance, $userid, $studentroleid);
+            if (!$DB->record_exists('local_stripe_enrolments', [
+                'userid' => $userid,
+                'courseid' => $course->id,
+            ])) {
+                $DB->insert_record('local_stripe_enrolments', (object) [
+                    'userid' => $userid,
+                    'courseid' => $course->id,
+                    'enrolid' => $instance->id,
+                    'timecreated' => time(),
+                ]);
+            }
         }
     }
 }
@@ -106,13 +123,59 @@ function local_stripe_enrol_in_all_courses(int $userid): void {
  * @return bool
  */
 function local_stripe_remove_suscriptor_role(int $userid): bool {
+    global $DB;
+
     $roleid = local_stripe_get_suscriptor_role_id();
     if (!$roleid) {
         return false;
     }
     $context = local_stripe_system_context();
     role_unassign($roleid, $userid, $context->id);
+
+    $enrolplugin = enrol_get_plugin('manual');
+    if ($enrolplugin) {
+        $enrolments = $DB->get_records('local_stripe_enrolments', ['userid' => $userid]);
+        foreach ($enrolments as $enrolment) {
+            $instance = $DB->get_record('enrol', ['id' => $enrolment->enrolid, 'enrol' => 'manual']);
+            if ($instance && $DB->record_exists('user_enrolments', [
+                'enrolid' => $instance->id,
+                'userid' => $userid,
+            ])) {
+                $enrolplugin->unenrol_user($instance, $userid);
+            }
+            $DB->delete_records('local_stripe_enrolments', ['id' => $enrolment->id]);
+        }
+    }
     return true;
+}
+
+/**
+ * Check whether a Stripe event was already processed.
+ *
+ * @param string $eventid
+ * @return bool
+ */
+function local_stripe_event_processed(string $eventid): bool {
+    global $DB;
+    return $DB->record_exists('local_stripe_events', ['eventid' => $eventid]);
+}
+
+/**
+ * Record a successfully handled Stripe event to make retries idempotent.
+ *
+ * @param string $eventid
+ * @param string $eventtype
+ * @param int|null $userid
+ * @return void
+ */
+function local_stripe_mark_event_processed(string $eventid, string $eventtype, ?int $userid = null): void {
+    global $DB;
+    $DB->insert_record('local_stripe_events', (object) [
+        'eventid' => $eventid,
+        'eventtype' => $eventtype,
+        'userid' => $userid,
+        'timeprocessed' => time(),
+    ]);
 }
 
 /**
@@ -203,51 +266,85 @@ function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tre
 }
 
 /**
- * Find a Stripe customer ID by email using Stripe SDK.
+ * Make a read-only request to the Stripe API without relying on the optional
+ * Stripe PHP SDK. This keeps subscription recovery available on deployments
+ * where plugin vendor dependencies were not copied.
+ *
+ * @param string $path API path including its query string.
+ * @param string $secretkey Stripe secret API key.
+ * @return array|null Decoded Stripe response, or null on failure.
+ */
+function local_stripe_api_get(string $path, string $secretkey): ?array {
+    $ch = curl_init('https://api.stripe.com' . $path);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $secretkey]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    $httpcode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false || $httpcode < 200 || $httpcode >= 300) {
+        error_log('Stripe API GET failed (' . $httpcode . '): ' . $error);
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    if (!is_array($data)) {
+        error_log('Stripe API GET returned invalid JSON');
+        return null;
+    }
+
+    return $data;
+}
+
+/**
+ * Find a Stripe customer ID by email.
  *
  * @param string $email
  * @param string $secretkey
  * @return string|null
  */
 function local_stripe_find_customer_id_by_email(string $email, string $secretkey): ?string {
-    global $CFG;
-    require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
-    \Stripe\Stripe::setApiKey($secretkey);
-    try {
-        $customers = \Stripe\Customer::search([
-            'query' => 'email:"' . $email . '"',
-            'limit' => 1,
-        ]);
-        if (!empty($customers->data)) {
-            return $customers->data[0]->id;
-        }
-    } catch (Exception $e) {
-        error_log('Stripe error in find_customer_id_by_email: ' . $e->getMessage());
+    $query = rawurlencode('email:"' . str_replace('"', '\\"', $email) . '"');
+    $data = local_stripe_api_get('/v1/customers/search?query=' . $query . '&limit=1', $secretkey);
+    if (!empty($data['data'][0]['id'])) {
+        return (string) $data['data'][0]['id'];
     }
     return null;
 }
 
 /**
- * Check if a Stripe customer has an active subscription using Stripe SDK.
+ * Get a Stripe customer's email address.
+ *
+ * @param string $customerid
+ * @param string $secretkey
+ * @return string|null
+ */
+function local_stripe_get_customer_email(string $customerid, string $secretkey): ?string {
+    $data = local_stripe_api_get('/v1/customers/' . rawurlencode($customerid), $secretkey);
+    return !empty($data['email']) ? (string) $data['email'] : null;
+}
+
+/**
+ * Check whether a Stripe customer has an active or trialing subscription.
  *
  * @param string $customerid
  * @param string $secretkey
  * @return bool
  */
 function local_stripe_customer_has_active_subscription(string $customerid, string $secretkey): bool {
-    global $CFG;
-    require_once($CFG->dirroot . '/local/stripe/vendor/autoload.php');
-    \Stripe\Stripe::setApiKey($secretkey);
-    try {
-        $subscriptions = \Stripe\Subscription::all([
-            'customer' => $customerid,
-            'status' => 'active',
-            'limit' => 1,
-        ]);
-        return !empty($subscriptions->data);
-    } catch (Exception $e) {
-        error_log('Stripe error in customer_has_active_subscription: ' . $e->getMessage());
+    $path = '/v1/subscriptions?customer=' . rawurlencode($customerid) . '&status=all&limit=100';
+    $data = local_stripe_api_get($path, $secretkey);
+    if (empty($data['data']) || !is_array($data['data'])) {
+        return false;
+    }
+    foreach ($data['data'] as $subscription) {
+        if (in_array($subscription['status'] ?? '', ['active', 'trialing'], true)) {
+            return true;
+        }
     }
     return false;
 }
-
