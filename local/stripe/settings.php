@@ -75,6 +75,50 @@ if ($hassiteconfig) {
     ));
 
     $settings->add(new admin_setting_heading(
+        'local_stripe/liveprices',
+        'Price IDs de Producción (LIVE)',
+        'Precios de la cuenta Stripe LIVE activa'
+    ));
+
+    $liveprices = [
+        'price_live_mxn_monthly' => ['MXN mensual', 'price_1TAfC3FQLKnVWYfjNXKRAv5v'],
+        'price_live_mxn_yearly' => ['MXN anual', 'price_1TJhT2FQLKnVWYfjkAtdw6An'],
+        'price_live_usd_monthly' => ['USD mensual', 'price_1TCvJGFQLKnVWYfjxWk8uX7H'],
+        'price_live_usd_yearly' => ['USD anual', 'price_1TCvJGFQLKnVWYfjyJAIVVhw'],
+    ];
+    foreach ($liveprices as $key => [$label, $default]) {
+        $settings->add(new admin_setting_configtext(
+            'local_stripe/' . $key,
+            $label . ' (LIVE)',
+            'Price ID de producción (price_...)',
+            $default,
+            PARAM_ALPHANUMEXT
+        ));
+    }
+
+    $settings->add(new admin_setting_heading(
+        'local_stripe/testprices',
+        'Price IDs de Prueba (TEST)',
+        'Precios de la cuenta Stripe TEST activa'
+    ));
+
+    $testprices = [
+        'price_test_mxn_monthly' => ['MXN mensual', 'price_1TKPWMFQLKnVWYfjwv2pcfNZ'],
+        'price_test_mxn_yearly' => ['MXN anual', 'price_1TKPWMFQLKnVWYfjahqLiS7F'],
+        'price_test_usd_monthly' => ['USD mensual', 'price_1TKPWMFQLKnVWYfjfA1nfUUm'],
+        'price_test_usd_yearly' => ['USD anual', 'price_1TKPWNFQLKnVWYfj1Rw7co4D'],
+    ];
+    foreach ($testprices as $key => [$label, $default]) {
+        $settings->add(new admin_setting_configtext(
+            'local_stripe/' . $key,
+            $label . ' (TEST)',
+            'Price ID de prueba (price_...)',
+            $default,
+            PARAM_ALPHANUMEXT
+        ));
+    }
+
+    $settings->add(new admin_setting_heading(
         'local_stripe/otherconfig',
         'Otras Configuraciones',
         ''

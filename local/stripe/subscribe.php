@@ -32,21 +32,25 @@ if (empty($publishablekey) || empty($secretkey)) {
 // Determine if we're in TEST or LIVE mode
 $is_test_mode = (strpos($secretkey, 'sk_test_') === 0);
 
-// Define available plans with their Stripe Price IDs
-// LIVE mode Price IDs
+// Define account-specific defaults. Each environment can override these in
+// the plugin settings so TEST and LIVE accounts never share Price IDs.
+$configured_price = static function(string $key, string $default): string {
+    $value = get_config('local_stripe', $key);
+    return empty($value) ? $default : $value;
+};
+
 $plans_live = [
-    'mxn_monthly' => 'price_1TAfC3FQLKnVWYfjNXKRAv5v', // 850 MXN/month
-    'mxn_yearly' => 'price_1TJhT2FQLKnVWYfjkAtdw6An', // 8500 MXN/year
-    'usd_monthly' => 'price_1TCvJGFQLKnVWYfjxWk8uX7H', // 48 USD/month
-    'usd_yearly' => 'price_1TCvJGFQLKnVWYfjyJAIVVhw', // 500 USD/year
+    'mxn_monthly' => $configured_price('price_live_mxn_monthly', 'price_1TAfC3FQLKnVWYfjNXKRAv5v'),
+    'mxn_yearly' => $configured_price('price_live_mxn_yearly', 'price_1TJhT2FQLKnVWYfjkAtdw6An'),
+    'usd_monthly' => $configured_price('price_live_usd_monthly', 'price_1TCvJGFQLKnVWYfjxWk8uX7H'),
+    'usd_yearly' => $configured_price('price_live_usd_yearly', 'price_1TCvJGFQLKnVWYfjyJAIVVhw'),
 ];
 
-// TEST mode Price IDs
 $plans_test = [
-    'mxn_monthly' => 'price_1TKPUl2UWdKwCEWaYv5lfvqo', // 850 MXN/month TEST
-    'mxn_yearly' => 'price_1TKPUl2UWdKwCEWaqV9xCWcG',  // 8500 MXN/year TEST
-    'usd_monthly' => 'price_1TKPUm2UWdKwCEWabQ5LFP4c', // 48 USD/month TEST
-    'usd_yearly' => 'price_1TKPUm2UWdKwCEWaotke1881',  // 500 USD/year TEST
+    'mxn_monthly' => $configured_price('price_test_mxn_monthly', 'price_1TKPWMFQLKnVWYfjwv2pcfNZ'),
+    'mxn_yearly' => $configured_price('price_test_mxn_yearly', 'price_1TKPWMFQLKnVWYfjahqLiS7F'),
+    'usd_monthly' => $configured_price('price_test_usd_monthly', 'price_1TKPWMFQLKnVWYfjfA1nfUUm'),
+    'usd_yearly' => $configured_price('price_test_usd_yearly', 'price_1TKPWNFQLKnVWYfj1Rw7co4D'),
 ];
 
 // Select the appropriate plan set based on mode
