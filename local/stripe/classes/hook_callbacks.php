@@ -16,8 +16,6 @@ class hook_callbacks {
      * @param \core_user\hook\extend_user_menu $hook
      */
     public static function extend_user_menu(\core_user\hook\extend_user_menu $hook): void {
-        global $USER;
-
         // Skip guests and non-logged-in users.
         if (!isloggedin() || isguestuser()) {
             return;
@@ -25,20 +23,11 @@ class hook_callbacks {
 
         require_once(__DIR__ . '/../lib.php');
 
-        $customerid = get_user_preferences('local_stripe_customer_id', null, $USER->id);
-        $hassubscription = local_stripe_user_has_suscriptor_role($USER->id);
-
-        $hasbilling = !empty($customerid) || $hassubscription;
-
         // Keep a single, predictable subscription entry in the avatar menu.
         $menuitem = new \stdClass();
         $menuitem->itemtype = 'link';
         $menuitem->title = local_stripe_get_subscription_menu_label();
-        if ($hasbilling) {
-            $menuitem->url = new \moodle_url('/local/stripe/portal.php');
-        } else {
-            $menuitem->url = new \moodle_url('/local/stripe/plans.php');
-        }
+        $menuitem->url = new \moodle_url('/local/stripe/portal.php');
         $menuitem->titleidentifier = 'subscriptionmenu';
         $menuitem->titlecomponent = 'local_stripe';
         $hook->add_navitem($menuitem);
