@@ -37,10 +37,17 @@ function local_stripe_create_portal_session(
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $secretkey]);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-    $response  = curl_exec($ch);
-    $httpcode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $response = curl_exec($ch);
+    $curlerror = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+    if ($response === false) {
+        throw new Exception('No fue posible conectar con Stripe: ' . $curlerror);
+    }
 
     $decoded = json_decode($response, true);
 
@@ -49,7 +56,44 @@ function local_stripe_create_portal_session(
         throw new Exception($errormsg, $httpcode);
     }
 
+    if (!is_array($decoded)) {
+        throw new Exception('Stripe devolvió una respuesta inválida al crear el portal.');
+    }
+
     return $decoded;
+}
+
+/**
+ * Redirect immediately to a Stripe-hosted Billing Portal session.
+ *
+ * A header is preferred, while the HTML fallbacks cover hosts where output or
+ * debugging prevented PHP from sending the redirect header.
+ */
+function local_stripe_redirect_to_billing_portal(string $url): never {
+    $parts = parse_url($url);
+    $scheme = strtolower($parts['scheme'] ?? '');
+    $host = strtolower($parts['host'] ?? '');
+
+    if ($scheme !== 'https' || ($host !== 'billing.stripe.com' && !str_ends_with($host, '.stripe.com'))) {
+        throw new Exception('Stripe devolvió una URL de portal inválida.');
+    }
+
+    \core\session\manager::write_close();
+
+    if (!headers_sent()) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Location: ' . $url, true, 303);
+    }
+
+    $safeurl = s($url);
+    $jsonurl = json_encode($url, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    echo '<!doctype html><html><head><meta charset="utf-8">';
+    echo '<meta http-equiv="refresh" content="0;url=' . $safeurl . '">';
+    echo '<title>Stripe</title></head><body>';
+    echo '<script>window.location.replace(' . $jsonurl . ');</script>';
+    echo '<a href="' . $safeurl . '">Continuar a Stripe</a>';
+    echo '</body></html>';
+    exit;
 }
 
 /**
@@ -57,17 +101,21 @@ function local_stripe_create_portal_session(
  * Returns null if no customer is found.
  */
 function local_stripe_find_live_customer_by_email(string $email, string $secretkey): ?string {
-    $url = 'https://api.stripe.com/v1/customers/search?query=' . urlencode('email:"' . $email . '"') . '&limit=5';
+    $url = 'https://api.stripe.com/v1/customers?email=' . rawurlencode($email) . '&limit=100';
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $secretkey]);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
     $response = curl_exec($ch);
+    $curlerror = curl_error($ch);
     $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($httpcode !== 200) {
+    if ($response === false || $httpcode !== 200) {
+        error_log('Stripe portal: customer lookup failed. ' . ($curlerror ?: 'HTTP ' . $httpcode));
         return null;
     }
 
@@ -77,15 +125,20 @@ function local_stripe_find_live_customer_by_email(string $email, string $secretk
     if (!empty($data['data'])) {
         foreach ($data['data'] as $customer) {
             // Prefer customers with active subscriptions.
-            $suburl = 'https://api.stripe.com/v1/subscriptions?customer=' . $customer['id'] . '&status=active&limit=1';
+            $suburl = 'https://api.stripe.com/v1/subscriptions?customer=' .
+                rawurlencode($customer['id']) . '&status=all&limit=100';
             $ch2 = curl_init($suburl);
             curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch2, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $secretkey]);
+            curl_setopt($ch2, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($ch2, CURLOPT_TIMEOUT, 30);
             $subresponse = curl_exec($ch2);
             curl_close($ch2);
             $subdata = json_decode($subresponse, true);
-            if (!empty($subdata['data'])) {
-                return $customer['id'];
+            foreach ($subdata['data'] ?? [] as $subscription) {
+                if (in_array($subscription['status'] ?? '', ['active', 'trialing'], true)) {
+                    return $customer['id'];
+                }
             }
         }
         // Fallback: return first customer even without active subscription
@@ -123,7 +176,8 @@ try {
         throw new Exception('No portal URL returned from Stripe');
     }
 
-    redirect($session['url']);
+    error_log("Stripe portal: redirecting Moodle user {$USER->id} to Stripe Billing Portal.");
+    local_stripe_redirect_to_billing_portal($session['url']);
 
 } catch (Exception $e) {
     $errormsg = $e->getMessage();
@@ -149,7 +203,10 @@ try {
             try {
                 $session = local_stripe_create_portal_session($livecustomerid, $secretkey, $returnurl, $locale);
                 if (!empty($session['url'])) {
-                    redirect($session['url']);
+                    error_log(
+                        "Stripe portal: redirecting recovered Moodle user {$USER->id} to Stripe Billing Portal."
+                    );
+                    local_stripe_redirect_to_billing_portal($session['url']);
                 }
             } catch (Exception $e2) {
                 error_log('Stripe portal retry error: ' . $e2->getMessage());
