@@ -324,7 +324,7 @@ function local_stripe_myprofile_navigation(\core_user\output\myprofile\tree $tre
         null,                    // Parent node (null = top-level in category).
         $url,                    // URL.
         null,                    // Title attribute.
-        'fa fa-credit-card'      // Icon.
+        null                     // Icon.
     );
 
     $tree->add_node($node);
