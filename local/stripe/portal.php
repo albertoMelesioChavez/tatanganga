@@ -10,15 +10,6 @@ $PAGE->set_title('Gestionar Suscripción');
 $PAGE->set_heading('Gestionar Suscripción');
 
 $customerid = get_user_preferences('local_stripe_customer_id', null, $USER->id);
-
-if (empty($customerid)) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->notification('No tienes una suscripción activa o no encontramos tus datos de facturación.', 'warning');
-    echo $OUTPUT->continue_button(new moodle_url('/'));
-    echo $OUTPUT->footer();
-    exit;
-}
-
 $secretkey = get_config('local_stripe', 'secretkey');
 
 if (empty($secretkey)) {
@@ -103,6 +94,23 @@ function local_stripe_find_live_customer_by_email(string $email, string $secretk
     }
 
     return null;
+}
+
+// Older subscriptions may have granted the Moodle role without saving the
+// Stripe customer ID. Recover it before deciding that billing is unavailable.
+if (empty($customerid)) {
+    $customerid = local_stripe_find_live_customer_by_email($USER->email, $secretkey);
+    if (!empty($customerid)) {
+        local_stripe_store_customer_id($USER->id, $customerid);
+    }
+}
+
+if (empty($customerid)) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification('No encontramos datos de facturación para tu cuenta.', 'warning');
+    echo $OUTPUT->continue_button(new moodle_url('/local/stripe/plans.php'));
+    echo $OUTPUT->footer();
+    exit;
 }
 
 $returnurl = $CFG->wwwroot . '/my/';
