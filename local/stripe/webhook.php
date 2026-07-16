@@ -48,6 +48,23 @@ switch ($type) {
         $customerid = $data['customer'] ?? null;
         $userid = 0;
         $identification_method = 'unknown';
+
+        // Grant access only for a completed subscription Checkout that has
+        // either been paid or legitimately requires no payment (for example,
+        // a configured trial). Never activate access from another Checkout
+        // mode or an unpaid session.
+        $checkoutmode = $data['mode'] ?? '';
+        $checkoutstatus = $data['status'] ?? '';
+        $paymentstatus = $data['payment_status'] ?? '';
+        if ($checkoutmode !== 'subscription' || $checkoutstatus !== 'complete' ||
+            !in_array($paymentstatus, ['paid', 'no_payment_required'], true)) {
+            error_log(
+                "Stripe webhook: ignored incomplete Checkout session {$eventid} " .
+                "(mode={$checkoutmode}, status={$checkoutstatus}, payment={$paymentstatus})"
+            );
+            $handled = true;
+            break;
+        }
         
         // Priority 1: Try to get userid from client_reference_id (most reliable)
         if (!empty($data['client_reference_id'])) {

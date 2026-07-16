@@ -60,13 +60,16 @@ if (!empty($sessionid)) {
                     }
 
                     if ($targetuserid > 0) {
+                        // Keep billing management linked even when access was
+                        // already activated by the webhook moments earlier.
+                        local_stripe_store_customer_id($targetuserid, $customerid);
+
                         // Check if already has the role.
                         if (local_stripe_user_has_suscriptor_role($targetuserid)) {
                             $activation_status = 'already_active';
                         } else {
-                            // Assign role and store customer ID.
+                            // Assign role.
                             local_stripe_assign_suscriptor_role($targetuserid);
-                            local_stripe_store_customer_id($targetuserid, $customerid);
                             error_log("Stripe success page: Assigned role to user $targetuserid from checkout session $sessionid");
                             $activation_status = 'success';
                         }

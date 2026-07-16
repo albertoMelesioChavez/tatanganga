@@ -64,7 +64,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_stripe'));
 
 // Add custom CSS for green switch and loading overlay
-$baseurl = (new moodle_url('/local/stripe/admin.php'))->out(false);
+$switchurl = (new moodle_url('/local/stripe/switch_mode.php'))->out(false);
 $sesskey = sesskey();
 
 echo <<<HTML
@@ -120,7 +120,7 @@ function switchStripeMode(newMode) {
     switchEl.disabled = true;
     
     // Use fetch to switch mode without immediate reload
-    fetch("https://tatanganga.cloud/local/stripe/switch_mode.php?sesskey={$sesskey}&mode=" + newMode)
+    fetch("{$switchurl}?sesskey={$sesskey}&mode=" + newMode)
         .then(function(response) {
             if (response.ok) {
                 // Wait a moment for server to process, then reload
