@@ -103,6 +103,10 @@ $kept = 0;
 $nocustomerid = 0;
 
 foreach ($users as $user) {
+    if (local_stripe_user_has_active_manual_access((int)$user->id)) {
+        $kept++;
+        continue;
+    }
     if (empty($user->customer_id)) {
         echo "⚠️  {$user->username} (ID: {$user->id}) - No customer_id stored, skipping\n";
         $nocustomerid++;

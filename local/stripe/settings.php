@@ -12,6 +12,13 @@ if ($hassiteconfig) {
         'moodle/site:config'
     ));
     
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_stripe_manual_access',
+        get_string('manualaccesstitle', 'local_stripe'),
+        new moodle_url('/local/stripe/manual_access.php'),
+        'moodle/site:config'
+    ));
+
     $settings = new admin_settingpage('local_stripe', 'Stripe Configuración');
 
     $settings->add(new admin_setting_heading(

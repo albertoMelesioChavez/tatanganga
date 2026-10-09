@@ -11,6 +11,20 @@ $PAGE->set_heading('Gestionar Suscripción');
 
 $customerid = get_user_preferences('local_stripe_customer_id', null, $USER->id);
 
+if (local_stripe_user_has_active_manual_access((int)$USER->id) && !optional_param('billing', false, PARAM_BOOL)) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('manualyouraccess', 'local_stripe'));
+    echo html_writer::tag('p', get_string('manualyouraccessuntil', 'local_stripe',
+        userdate(local_stripe_manual_access_end((int)$USER->id))));
+    if ($customerid) {
+        echo html_writer::link(new moodle_url('/local/stripe/portal.php', ['billing' => 1]),
+            get_string('manualstripebilling', 'local_stripe'), ['class' => 'btn btn-secondary']);
+    }
+    echo $OUTPUT->continue_button(new moodle_url('/my/'));
+    echo $OUTPUT->footer();
+    exit;
+}
+
 if (empty($customerid)) {
     echo $OUTPUT->header();
     echo $OUTPUT->notification('No tienes una suscripción activa o no encontramos tus datos de facturación.', 'warning');

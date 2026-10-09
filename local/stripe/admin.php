@@ -217,6 +217,11 @@ $sync_status = get_sync_status();
             <h3 class="card-title">Acciones</h3>
             
             <div class="btn-group mb-3" role="group">
+                <a href="<?php echo new moodle_url('/local/stripe/manual_access.php'); ?>"
+                   class="btn btn-info">
+                    <?php echo get_string('manualaccesstitle', 'local_stripe'); ?>
+                </a>
+
                 <a href="<?php echo new moodle_url('/local/stripe/admin.php', ['action' => 'download_report', 'sesskey' => sesskey()]); ?>" 
                    class="btn btn-primary">
                     <i class="fa fa-download"></i> Descargar Reporte Completo
