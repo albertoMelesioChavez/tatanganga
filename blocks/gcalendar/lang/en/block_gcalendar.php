@@ -22,8 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Google Calendar';
-$string['gcalendar'] = 'Google Calendar';
+$string['pluginname'] = 'Community calendar';
+$string['gcalendar'] = 'Community calendar';
 $string['gcalendar:addinstance'] = 'Add a Google Calendar block';
 $string['gcalendar:myaddinstance'] = 'Add a Google Calendar block to Dashboard';
+$string['upcomingsessions'] = 'Upcoming sessions';
+$string['intro'] = 'View upcoming activities, times and access details. Select an event to see all its information.';
+$string['frametitle'] = 'Tatanganga community events calendar';
+$string['opencalendar'] = 'Open full calendar';
+$string['timezone'] = 'Times shown for Mazatlán (GMT−7)';
 $string['privacy:metadata'] = 'The Google Calendar block only displays an embedded Google Calendar and does not store any data.';

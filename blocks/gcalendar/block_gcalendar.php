@@ -37,15 +37,69 @@ class block_gcalendar extends block_base {
      * @return stdClass
      */
     public function get_content() {
+        global $OUTPUT;
+
         if ($this->content !== null) {
             return $this->content;
         }
 
+        $calendarid = 'tatanganga.casareligiosa@gmail.com';
+        $embedparams = [
+            'src' => $calendarid,
+            'ctz' => 'America/Mazatlan',
+            'hl' => 'es_419',
+            'mode' => 'AGENDA',
+            'showTitle' => 0,
+            'showNav' => 1,
+            'showDate' => 1,
+            'showPrint' => 0,
+            'showTabs' => 0,
+            'showCalendars' => 0,
+            'showTz' => 0,
+        ];
+        $embedurl = new moodle_url('https://calendar.google.com/calendar/embed', $embedparams);
+        $calendarurl = new moodle_url('https://calendar.google.com/calendar/render', ['cid' => $calendarid]);
+
+        $intro = html_writer::start_div('gcalendar-intro');
+        $intro .= html_writer::div(
+            $OUTPUT->pix_icon('i/calendar', '', 'core', ['class' => 'gcalendar-intro-icon']),
+            'gcalendar-icon-wrap',
+            ['aria-hidden' => 'true']
+        );
+        $intro .= html_writer::start_div('gcalendar-intro-copy');
+        $intro .= html_writer::tag('h3', get_string('upcomingsessions', 'block_gcalendar'));
+        $intro .= html_writer::tag('p', get_string('intro', 'block_gcalendar'));
+        $intro .= html_writer::end_div();
+        $intro .= html_writer::end_div();
+
+        $iframe = html_writer::tag('iframe', '', [
+            'src' => $embedurl->out(false),
+            'title' => get_string('frametitle', 'block_gcalendar'),
+            'loading' => 'lazy',
+            'frameborder' => '0',
+            'scrolling' => 'no',
+        ]);
+
+        $footer = html_writer::start_div('gcalendar-actions');
+        $footer .= html_writer::link(
+            $calendarurl,
+            get_string('opencalendar', 'block_gcalendar'),
+            [
+                'class' => 'gcalendar-open-link',
+                'target' => '_blank',
+                'rel' => 'noopener noreferrer',
+            ]
+        );
+        $footer .= html_writer::tag('span', get_string('timezone', 'block_gcalendar'), [
+            'class' => 'gcalendar-timezone',
+        ]);
+        $footer .= html_writer::end_div();
+
         $this->content = new stdClass();
-        $this->content->text = '<div style="width:100%; overflow:hidden;">'
-            . '<iframe src="https://calendar.google.com/calendar/embed?src=tatanganga.casareligiosa%40gmail.com&ctz=America%2FMazatlan"'
-            . ' style="border:0; border-radius:8px; width:100%; height:600px;" frameborder="0" scrolling="no"></iframe>'
-            . '</div>';
+        $this->content->text = html_writer::div(
+            $intro . html_writer::div($iframe, 'gcalendar-frame-wrap') . $footer,
+            'gcalendar-shell'
+        );
         $this->content->footer = '';
 
         return $this->content;

@@ -1,0 +1,158 @@
+.block_gcalendar .card-body {
+    padding: 0;
+    overflow: hidden;
+}
+
+.block_gcalendar .card-title {
+    margin: 0;
+    padding: 1.25rem 1.5rem 0;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.block_gcalendar .gcalendar-shell {
+    color: #1f2937;
+}
+
+.block_gcalendar .gcalendar-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem 1.5rem 1.25rem;
+}
+
+.block_gcalendar .gcalendar-icon-wrap {
+    display: grid;
+    flex: 0 0 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    color: #ffffff;
+    background: #713f4f;
+    border-radius: 12px;
+    box-shadow: 0 7px 18px rgba(113, 63, 79, 0.24);
+}
+
+.block_gcalendar .gcalendar-intro-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    filter: brightness(0) invert(1);
+}
+
+.block_gcalendar .gcalendar-intro-copy h3 {
+    margin: 0 0 0.25rem;
+    color: #1a1a1a;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.block_gcalendar .gcalendar-intro-copy p {
+    max-width: 68ch;
+    margin: 0;
+    color: #595959;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.block_gcalendar .gcalendar-frame-wrap {
+    min-height: 36rem;
+    margin: 0 1.5rem;
+    overflow: hidden;
+    background: #f7f5f2;
+    border: 1px solid #e5e0da;
+    border-radius: 14px;
+}
+
+.block_gcalendar .gcalendar-frame-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 36rem;
+    border: 0;
+}
+
+.block_gcalendar .gcalendar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem 1.25rem;
+}
+
+.block_gcalendar .gcalendar-open-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+    color: #ffffff;
+    background: #713f4f;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.block_gcalendar .gcalendar-open-link:hover {
+    color: #ffffff;
+    background: #57313e;
+    box-shadow: 0 6px 16px rgba(87, 49, 62, 0.22);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.block_gcalendar .gcalendar-open-link:focus-visible {
+    outline: 3px solid rgba(113, 63, 79, 0.32);
+    outline-offset: 3px;
+}
+
+.block_gcalendar .gcalendar-timezone {
+    color: #666666;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: right;
+}
+
+@media (max-width: 575.98px) {
+    .block_gcalendar .card-title {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .block_gcalendar .gcalendar-intro {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .block_gcalendar .gcalendar-frame-wrap {
+        min-height: 31rem;
+        margin-right: 0;
+        margin-left: 0;
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+    }
+
+    .block_gcalendar .gcalendar-frame-wrap iframe {
+        height: 31rem;
+    }
+
+    .block_gcalendar .gcalendar-actions {
+        align-items: stretch;
+        flex-direction: column;
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .block_gcalendar .gcalendar-timezone {
+        text-align: left;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block_gcalendar .gcalendar-open-link {
+        transition: none;
+    }
+}
